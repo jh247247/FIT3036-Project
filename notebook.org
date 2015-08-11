@@ -14,3 +14,18 @@
    - Fire
    - Greenhouse effect
 ** Independent ideas
+   - Daisy predators?
+     - Goes against the whole idea of planet only occupied by daisies
+   - "Harvesters"
+     - Where daisies are harvested from a certain area, periodically
+       killing them off
+   - Different maximum age for different daisies
+     - I.e: black lives longer than white?
+   - Different growth rates at different temperatures?
+     - Attempt to knock the balance off-kilter
+     - White prefers high temps and black low temps (Might actually
+       cause oscillation, would be interesting...)
+     - White prefers low temps and black high temps, essentially
+       positive feedback.
+
+   http://www.uwa.edu.au/__data/assets/pdf_file/0006/1637367/Wittwer_2005.pdf
