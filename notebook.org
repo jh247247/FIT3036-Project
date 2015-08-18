@@ -29,3 +29,98 @@
        positive feedback.
 
    http://www.uwa.edu.au/__data/assets/pdf_file/0006/1637367/Wittwer_2005.pdf
+* <2015-08-18 Tue>
+** Draft abstract
+   Points to make:
+   - What:
+     - What problem are we trying to solve?
+     - What were the results of your research?
+     - What are the implications of the research?
+   - Why:
+     - Why are we doing this?
+   - How:
+     - How are we going to do this?
+     - How are we going to change it from previous research?
+
+   Daisyworld is a computer simulation proposed by James Lovelock and
+   Andrew Watson in a paper published in 1983. It proposes the
+   possibility of a simple system that self regulates via the albedo
+   of the two kinds of daisies that grow on an isolated planet. In
+   an attempt to illustrate the effects of speciation(?), the computer
+   simulation is modified by having the two types of daisies flourish
+   at different temperatures. This modification induced (X) and
+   showed (Y). Etc?
+** Program design
+   - World
+     - Contains some topology of the entire planet, make it simple
+       and be a grid/torus
+     - Each tile contains either a type of daisy or bare earth
+     - Manages the temperatures at each of the tiles using the
+       incident radiation and the amount absorbed by the albedo at
+       each tile
+   - Tile
+     - Contains a daisy or bare earth
+     - Has a incident amount of light
+     - Has an albedo, dependent on the object at this tile
+     - Has a local temperature, local object is dependent on this
+     - Does it need a number of time steps since the "object" has
+       been living on it?
+       - I.e: the daisy will be more likely to die dependent on the
+	 difference between the ideal temp and the local temp as well
+	 as the amount of time since it spawned
+     - At each time step, this has to calculate the probability of
+       certain events happening, e.g: the daisy dying or a new daisy
+       spawning
+       - Will we have multiple daisies in one tile?
+   - Daisy
+     - Can spawn, grow, die
+     - Growth is dependent on the incident radiation and temperature
+       (delta ideal temp)
+     - Has an albedo (independent from the containing tile)
+     - Has an ideal temperature (template programming or just an
+       overloaded constructor?)
+     - "Just a container" to be handled by the containing tile
+     - Has an ideal spawn temperature, make this dependent on the
+       type of daisy?
+   - Sun
+     - Has an output of radiation
+     - Radiation can increase/decrease over time
+     - Affects global temperature via amount of radiation
+     - Controlled by user?
+   - UI
+     - Controlled by user
+     - Should contain graphs of spawn probability vs temp for each
+       type of daisy
+     - Should show topology of the planet with graphics for daisies
+     - Should have some kind of input for ideal daisy temp and
+       incident radiation
+     - Should have input for incident radiation vs time
+     - Should communicate only with an eventbus(?) Callbacks
+       complicate things a bit too much, makes my life easier.
+   *
+* <2015-08-18 Tue>
+** What makes a good title?
+   - Be informative
+   - Be catchy
+   - Can't be too long
+   - Keywords
+     - Often are specified in the article
+     - e.g: Daisyworld, homeostatic, climate
+   - Have to be unabiguouos
+   - Memorable!
+   - Catchphrase; explains a lot in a few words
+   - Impactful words, then a sentence explaining what it is about
+** What makes a bad title?
+   - Uses Jargon
+   - Vague
+   -
+** Good titles?
+   - Daisyworld; the tale of two flowers
+
+
+
+** This week
+   - Start coding classes
+     - Idea for UI/graphics pyQT
+   - Read "Individual based modelling and ecology" by Grimm
+     - Remember to mention agent-based model in paper introduction
