@@ -124,3 +124,37 @@
      - Idea for UI/graphics pyQT
    - Read "Individual based modelling and ecology" by Grimm
      - Remember to mention agent-based model in paper introduction
+
+* <2015-08-23 Sun>
+** Papers
+*** Self sustained temperature oscillations on daisyworld
+    http://onlinelibrary.wiley.com.ezproxy.lib.monash.edu.au/doi/10.1034/j.1600-0889.1999.t01-3-00005.x/pdf
+
+    - Seems like they try to induce the same model that I'm trying to
+      do, with black and white daisies having different "optimal"
+      temperatures
+    - They only use the mathematical model, no actual computer
+      simulation takes place...
+    - Oscillations only take place when both daisies exist
+    - Oscillations depend on the solar luminosity, at the extremities
+      damped oscillations can take place (something to investigate...)
+*** Catastrophes on daisyworld
+    http://ac.els-cdn.com.ezproxy.lib.monash.edu.au/S0169534703000971/1-s2.0-S0169534703000971-main.pdf?_tid=475b389c-4985-11e5-82a3-00000aab0f27&acdnat=1440327428_a53255f04ad37eb872bca0b58949ea50
+    - This is more like a description of daisyworld and how it should
+      actually be written about more in ecological papers...
+    - Is actually quite nice to read if somebody didn't really have an
+      understanding of daisyworld, try to write like this in
+      introduction?
+    - Has good references to other papers and a summarisation of what
+      they actually say, nice!
+    - Refers to another paper where a desert grows across the world? Idea?
+*** Catastrophic desert formation in daisyworld
+    http://ac.els-cdn.com.ezproxy.lib.monash.edu.au/S0022519303000699/1-s2.0-S0022519303000699-main.pdf?_tid=22a7e238-4986-11e5-a18a-00000aacb35f&acdnat=1440327796_1bff9d861652a3885ef56018c69e54bf
+    - Paper commented on in previous section
+    - Actually has a spacial model for simulation
+    - Nicely worded abstract, understandable if you already know of daisyworld
+    - Desert comes about due to emulation of latitudes and the
+      difference of incident solar radiation
+    - Has pictures of their simulation
+    - Nicely worded analysis of the critical points in the
+      temperature/solar radiation curves in conclusion
