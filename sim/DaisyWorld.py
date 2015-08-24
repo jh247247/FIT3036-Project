@@ -14,14 +14,11 @@ class Example(QWidget):
 
 
     def initUI(self):
-
         self.setGeometry(300, 300, 280, 170)
         self.setWindowTitle('Points')
         self.show()
 
-
     def paintEvent(self, e):
-
         qp = QPainter()
         qp.begin(self)
         self.drawPoints(qp)
