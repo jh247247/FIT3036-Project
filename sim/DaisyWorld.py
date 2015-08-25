@@ -15,7 +15,7 @@ class Example(QWidget):
 
     def initUI(self):
         self.setGeometry(300, 300, 280, 170)
-        self.setWindowTitle('Points')
+        self.setWindowTitle('DaisyWorld')
         self.show()
 
     def paintEvent(self, e):
@@ -26,7 +26,6 @@ class Example(QWidget):
 
 
     def drawPoints(self, qp):
-
         qp.setPen(Qt.red)
         size = self.size()
 

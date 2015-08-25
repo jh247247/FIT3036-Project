@@ -11,9 +11,11 @@ from Sun import Sun
 class World(QWidget):
     SIZE_X = 20
     SIZE_Y = 20
-    START_TEMP = 22.5
+    START_TEMP = 10
     def __init__(self, sun):
         super().__init__()
+
+        self.sun = sun
 
         # calculate start temp from sun
         self.avgTemp = self.START_TEMP
@@ -21,6 +23,7 @@ class World(QWidget):
         self.worldTiles = [[Tile(self, World.START_TEMP) \
                             for x in range(self.SIZE_X)] \
                            for y in range(self.SIZE_Y)]
+        self.worldLock = threading.Lock()
 
         self.update()
 
@@ -30,11 +33,21 @@ class World(QWidget):
 
 
     def update(self):
+        self.worldLock.acquire()
+
         threading.Timer(0.1,self.update).start()
+        self.avgTemp = 0
         # let the tiles draw themselves
         for i in range(self.SIZE_X):
             for j in range(self.SIZE_Y):
-                self.worldTiles[i][j].update()
+                self.worldTiles[i][j].update(self.sun.radiation)
+                self.avgTemp += self.worldTiles[i][j].temp
+
+        self.worldLock.release()
+        self.avgTemp /= self.SIZE_X*self.SIZE_Y
+        print("Average temp:" + str(self.avgTemp))
+
+        self.sun.update()
 
 
     def draw(self, qp):
@@ -43,10 +56,12 @@ class World(QWidget):
         incY = size.height()/self.SIZE_Y
 
         # let the tiles draw themselves
+        self.worldLock.acquire()
         for i in range(self.SIZE_X):
             for j in range(self.SIZE_Y):
                 self.worldTiles[i][j].draw(qp,i*incX,j*incY,
                                            incX+1,incY+1)
+        self.worldLock.release()
 
 
     def paintEvent(self, e):
@@ -58,5 +73,5 @@ class World(QWidget):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    ex = World(None)
+    ex = World(Sun())
     sys.exit(app.exec_())

@@ -1,14 +1,11 @@
 
 class Sun:
     def __init__(self):
-        # TODO: define current radiation scale
-        # TODO: make radiation change over time
-        # TODO: figure out how to make graph of the radiation over
-        # time
-        # TODO: integrate this into the UI somehow, make this a widget?
-        # self.currRadiation =
-        i = 0 # placeholder to make checker stop whinging
+        # radiation value of 1 means that if albedo is 0.5,
+        # temperature should eventually become 22.5
+        self.radiation = 1
 
     def update(self):
-        i = 0
-        # TODO: update current temp by one time step
+        self.radiation += 0.001
+        print("SunRad: " + str(self.radiation))
+        # TODO: make radiation an actual equation that takes in time

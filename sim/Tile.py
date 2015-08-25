@@ -2,7 +2,7 @@
 import random
 from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtGui import QPainter, QColor, QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import *
 
 from Daisy import Daisy
 
@@ -14,8 +14,14 @@ class Tile:
         self.obj = None
         self.temp = temp
 
-    def update(self):
-        # TODO: update temp based on incoming incident radiation
+    def update(self, rad):
+        # update temp
+        if self.obj is not None:
+            self.temp += (rad*self.obj.albedo-0.5)
+        else:
+            self.temp += (rad*self.BARE_ALBEDO-0.5)
+
+
         if self.obj is not None:
             self.obj.update()
             # obj died, clear
@@ -23,10 +29,22 @@ class Tile:
                 self.obj = None
         # else, the tile is unoccupied, attempt to spawn?
         else:
-            print("Making daisy!")
-            self.obj = Daisy(self, random.random())
+            self.spawn()
+
+    def spawn(self):
+        chance = random.random()
+        # TODO: make spawn chance dependent on the daisy type
+        if chance < 1-abs(22.5-self.temp)/22.5-0.1: # TODO: fix magics
+            # TODO: spawn different types of
+            # daisy dependent on temperature
+            if random.random() > (self.temp-22.5)/5+0.5:
+                # TODO: make albedo not magic
+                self.obj = Daisy(self, 0.7)
+            else:
+                self.obj = Daisy(self, 0.2)
 
     def draw(self, qp, x, y, w, h):
+        # TODO: change this so it sets color, not albedo
         if self.obj is None:
             albedo = self.BARE_ALBEDO
         else:
@@ -40,7 +58,10 @@ class Tile:
         qp.drawRect(x,y,w,h)
         qp.setPen(Qt.red)
 
-        # FIXME: nasty magicses
-        qp.drawText(x,y+h,str(self.temp))
-        # TODO: Write the temperature on the tile
+        # Write the temperature on the tile
+        qp.drawText(QRectF(QPointF(x,y+h),
+                           QPointF(x+w,y)),
+                    Qt.AlignCenter,
+                    str(round(self.temp,1)))
+
         qp.setPen(Qt.black)

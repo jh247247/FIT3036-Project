@@ -2,6 +2,7 @@ import random
 
 class Daisy:
     MAX_GROWTH = 100
+    # TODO: add optimal temps for types of daisy
     def __init__(self, parentTile, albedo):
         self.growth = 0
         self.living = True
@@ -17,7 +18,7 @@ class Daisy:
         # TODO: Growth dependent on tile incident radiation
         # TODO: Death dependent on age and temp at tile
         # TODO: death dependent on things other than age...
-        if self.age/100 > random.random():
+        if self.age/self.MAX_GROWTH > random.random():
             self.die()
 
     def die(self):
