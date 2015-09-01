@@ -1,0 +1,149 @@
+#+TITLE: FIT3036: Daisyworld Project specification
+#+EMAIL: jmhos3@student.monash.edu
+* Abstract
+   Daisyworld is a computer simulation proposed by James Lovelock and
+   Andrew Watson in a paper published in 1983. It proposes the
+   possibility of a simple system that self regulates via the albedo
+   of the two kinds of daisies that grow on an isolated planet. In
+   an attempt to illustrate the effects of a species causing the local
+   environment to be detrimental to its own growth, the computer
+   simulation is modified by having the two types of daisies flourish
+   at different temperatures. (Should I change my design spec?)
+
+* Introduction
+  What problem am I actually solving?
+
+* Project requirements
+** Functional requirements
+** Non-functional requirements
+* Project plan
+** Risk Analysis
+   What risks are there in doing this project? How can I mitigate them?
+   To what order are the risks involved?
+   | Risk                        | Chance | Impact | Mitigation               |
+   |-----------------------------+--------+--------+--------------------------|
+   | Misunderstanding of project | Medium | High   | Clarify with supervisor  |
+   | specification               |        |        |                          |
+   |-----------------------------+--------+--------+--------------------------|
+   | Hardware failure            | Low    | Medium | Use off site backups and |
+   |                             |        |        | multiple machines        |
+   |-----------------------------+--------+--------+--------------------------|
+   | Scope creep                 | Medium | High   | Follow initial design as |
+   |                             |        |        | Closely as possible.     |
+   |                             |        |        | Implement as little      |
+   |                             |        |        | logic as required.       |
+   |-----------------------------+--------+--------+--------------------------|
+
+** Project Timeline
+   - Weeks 1 to 4
+     - Read relevant documentation on Daisyworld
+     - Figure out implementation of agent based models and how it can
+       be applied to simulation
+     - Choose modification of model
+   - Week 5
+     - Implement initial prototype of simulation
+   - Week 6
+     - Implement UI interaction for simulation
+     - Modify simulation slightly, with user option to enable/disable
+   - Week 7
+     - Start gathering data for different parameters
+   - Week 8
+     - ???
+   - Week 9
+     - Profit!
+* Program design
+** Program architecture
+   #+begin_src plantuml :file uml.png
+     abstract class Daisy {
+	      age : int
+	      living : boolean
+	      update()
+     }
+     Daisy <|-- BlackDaisy
+     Daisy <|-- WhiteDaisy
+     Daisy <|-- SuperBlackDaisy
+     Daisy <|-- SuperWhiteDaisy
+     BlackDaisy <-- Tile
+     WhiteDaisy <-- Tile
+     SuperWhiteDaisy <-- Tile
+     SuperBlackDaisy <-- Tile
+     Tile <-- World
+
+     class SuperBlackDaisy {
+	   ALBEDO = 0.25 : double
+	   OPTIMAL_TEMP = 30
+	   update()
+     }
+
+     class BlackDaisy {
+	   ALBEDO = 0.25 : double
+	   OPTIMAL_TEMP = 22.5 : double
+	   update()
+     }
+
+     class WhiteDaisy {
+	   ALBEDO = 0.75 : double
+	   OPTIMAL_TEMP = 22.5 : double
+	   update
+     }
+
+     class SuperWhiteDaisy {
+	   ALBEDO = 0.25 : double
+	   OPTIMAL_TEMP = 10
+	   update()
+     }
+
+     class Tile {
+	   update(localRadiation : double)
+	   draw(qp : QPainter, x : int, y : int, w : int , h : int)
+     }
+
+     class World {
+	   SIZE_X : int
+	   SIZE_Y : int
+	   update()
+	   draw()
+	   paintEvent()
+     }
+   #+end_src
+** Basic program flow overview
+   #+begin_src plantuml :file flow.png
+    start
+
+    fork
+    while (end?) is (no)
+    :Update World;
+    :Update Sun;
+    :User defined delay;
+    endwhile (yes)
+    fork again
+    while (end?) is (no)
+    :Draw world;
+    endwhile (yes)
+    fork again
+    while (end?) is (no)
+    if (user input?) (yes)
+    :Change variables;
+    endif
+    endwhile (yes)
+    end fork
+    end
+   #+end_src
+** Update world flow
+   #+begin_src plantuml :file updateWorld.png
+     |World|
+     start
+
+	     :Acquire lock on world;
+	     |#AntiqueWhite|Tile|
+	     :Update each tile based on daisy;
+	     |Daisy|
+	     :Update daisy based on temperature and age;
+	     |World|
+	     :Mix temperatures with adjacent tiles;
+	     :Calculate average temperature;
+	     :Release lock on world;
+     end
+   #+end_src
+* References
+* Appendix
