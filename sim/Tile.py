@@ -17,9 +17,9 @@ class Tile:
     def update(self, rad):
         # update temp
         if self.obj is not None:
-            self.temp += (rad*self.obj.albedo-0.5)
+            self.temp += 0.2*(rad*self.obj.albedo-0.5)
         else:
-            self.temp += (rad*self.BARE_ALBEDO-0.5)
+            self.temp += 0.2*(rad*self.BARE_ALBEDO-0.5)
 
 
         if self.obj is not None:
@@ -56,7 +56,19 @@ class Tile:
         qp.setBrush(QColor(albedo,albedo,albedo))
         # draw in the albedo
         qp.drawRect(x,y,w,h)
-        qp.setPen(Qt.red)
+
+        # overlay temp rect over the top
+        qp.setBrush(QColor(min(max((self.temp-22.5)*50-255,0),255),
+                         min(max(255-abs((self.temp-22.5)*50),0),255),
+                           min(max(128-(self.temp-22.5)*50,0),255),25))
+
+
+        qp.drawRect(x,y,w,h)
+
+
+        qp.setPen(QColor(min(max((self.temp-22.5)*50-255,0),255),
+                         min(max(255-abs((self.temp-22.5)*50),0),255),
+                         min(max(128-(self.temp-22.5)*50,0),255)))
 
         # Write the temperature on the tile
         qp.drawText(QRectF(QPointF(x,y+h),
@@ -64,4 +76,4 @@ class Tile:
                     Qt.AlignCenter,
                     str(round(self.temp,1)))
 
-        qp.setPen(Qt.black)
+        qp.setPen(Qt.black);

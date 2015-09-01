@@ -11,7 +11,7 @@ from Sun import Sun
 class World(QWidget):
     SIZE_X = 20
     SIZE_Y = 20
-    START_TEMP = 10
+    START_TEMP = 20
     def __init__(self, sun):
         super().__init__()
 
@@ -35,19 +35,49 @@ class World(QWidget):
     def update(self):
         self.worldLock.acquire()
 
-        threading.Timer(0.1,self.update).start()
+        threading.Timer(0.001,self.update).start()
         self.avgTemp = 0
-        # let the tiles draw themselves
+        # let the tiles update their temps
         for i in range(self.SIZE_X):
             for j in range(self.SIZE_Y):
                 self.worldTiles[i][j].update(self.sun.radiation)
+
+
+        # TODO: let the temperature of adjacent tiles affect each other
+        # Cannot do this in place, have to make an array of whatever
+        # change is required and apply it, multiple times for multiple
+        # stages?
+
+        deltaTempTiles = [[0 for x in range(self.SIZE_X)] \
+                           for y in range(self.SIZE_Y)]
+
+
+        # let adjacent tiles affect one another
+        for i in range(self.SIZE_X):
+            for j in range(self.SIZE_Y):
+                deltaTempTiles[i][j] += self.worldTiles[i][j].temp - \
+                                  self.worldTiles[i-1][j].temp
+                deltaTempTiles[i][j] += self.worldTiles[i][j].temp - \
+                                  self.worldTiles[i][j-1].temp
+                deltaTempTiles[i][j] += self.worldTiles[i][j].temp - \
+                                        self.worldTiles[(i+1)%self.SIZE_X][j].temp
+                deltaTempTiles[i][j] += self.worldTiles[i][j].temp - \
+                                        self.worldTiles[i][(j+1)%self.SIZE_Y].temp
+                deltaTempTiles[i][j] /= 4 # TODO: fix factor...
+                deltaTempTiles[i][j] *= 0.1
+
+        for i in range(self.SIZE_X):
+            for j in range(self.SIZE_Y):
+                self.worldTiles[i][j].temp -= deltaTempTiles[i][j]
+
+        for i in range(self.SIZE_X):
+            for j in range(self.SIZE_Y):
                 self.avgTemp += self.worldTiles[i][j].temp
 
         self.worldLock.release()
         self.avgTemp /= self.SIZE_X*self.SIZE_Y
-        print("Average temp:" + str(self.avgTemp))
-
         self.sun.update()
+        print(str(self.avgTemp) + " , " + str(self.sun.radiation))
 
 
     def draw(self, qp):
