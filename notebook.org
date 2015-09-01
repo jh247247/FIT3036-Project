@@ -158,3 +158,20 @@
     - Has pictures of their simulation
     - Nicely worded analysis of the critical points in the
       temperature/solar radiation curves in conclusion
+* <2015-08-25 Tue>
+** Code progress
+   Implemented a basic implementation of daisyworld, just by
+   "eyeballing" the paper. The system that I've implemented is rather
+   naive and is really just an approximation of the daisyworld
+   specified in the paper.
+   Things to tune:
+   - Probability of a daisy growing at some point
+   - Daisy death vs temperature + age instead of just age
+   - Different probability for growth of different types of daisies vs temperature
+   - Different "optimal" points for different types of daisies
+** To Read
+*** Daisyworld: a review
+    http://www.dpi.inpe.br/gilberto/cursos/cst-317/papers/daisyworld_review.pdf
+    -
+*** Self stabilization of the biosphere under global change
+    - a tutorial geological approach
