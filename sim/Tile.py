@@ -15,13 +15,6 @@ class Tile:
         self.temp = temp
 
     def update(self, rad):
-        # update temp
-        if self.obj is not None:
-            self.temp += 0.2*(rad*self.obj.albedo-0.5)
-        else:
-            self.temp += 0.2*(rad*self.BARE_ALBEDO-0.5)
-
-
         if self.obj is not None:
             self.obj.update()
             # obj died, clear
@@ -30,6 +23,15 @@ class Tile:
         # else, the tile is unoccupied, attempt to spawn?
         else:
             self.spawn()
+
+
+        # update temp
+        if self.obj is not None:
+            self.temp += 0.2*(rad*self.obj.albedo-0.5)
+        else:
+            self.temp += 0.2*(rad*self.BARE_ALBEDO-0.5)
+
+
 
     def spawn(self):
         chance = random.random()
