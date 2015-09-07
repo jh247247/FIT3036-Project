@@ -17,9 +17,14 @@ class Sun(QWidget):
         self.mainLayout = QVBoxLayout(self);
 
         self.radSpinner = QDoubleSpinBox(self)
+        self.radSpinner.setDecimals(4)
+        self.radSpinner.setValue(1) # set the default radiation value
+        self.radSpinner.setSingleStep(0.0001)
         self.radSpinner.valueChanged.connect(self.handleRadSpinner)
 
         self.deltaSpinner = QDoubleSpinBox(self)
+        self.deltaSpinner.setDecimals(4)
+        self.deltaSpinner.setSingleStep(0.0001)
         self.deltaSpinner.valueChanged.connect(self.handleDeltaSpinner)
 
         self.deltaEnable = QCheckBox(self)
