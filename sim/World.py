@@ -27,11 +27,6 @@ class World(QWidget):
 
         self.update()
 
-        self.setGeometry(300, 300, 280, 170)
-        self.setWindowTitle('Points')
-        self.show()
-
-
     def update(self):
         self.worldLock.acquire()
 
@@ -101,7 +96,3 @@ class World(QWidget):
         qp.end()
         super().update()
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = World(Sun())
-    sys.exit(app.exec_())

@@ -1,40 +1,283 @@
-#+TITLE: FIT3036: Daisyworld Project specification
+#+TITLE: Invaders on Daisyworld: A Computer Simulation of Invasive Species
 #+EMAIL: jmhos3@student.monash.edu
+
+
 * Abstract
-   Daisyworld is a computer simulation proposed by James Lovelock and
-   Andrew Watson in a paper published in 1983. It proposes the
-   possibility of a simple system that self regulates via the albedo
-   of the two kinds of daisies that grow on an isolated planet. In
-   an attempt to illustrate the effects of a species causing the local
-   environment to be detrimental to its own growth, the computer
-   simulation is modified by having the two types of daisies flourish
-   at different temperatures. (Should I change my design spec?)
+  Climate change due to invasive species is a very real threat that
+  mankind is constantly trying to fight via border protection and
+  quarantine. Using an agent based implementation of the model
+  "Daisyworld" proposed by Watson and Lovelock\cite{watson-lovelock},
+  this paper attempts to explore this threat to the global climate of
+  a system. On top of the two native types of daisies, two new types
+  of daisies are introduced that are identical besides the temperature
+  that they flourish at. For this paper, the invasive daisies that
+  warm the system prefer a warm climate and vice versa for the daisies
+  that cool the climate. If enough of either type of invasive daisies
+  exist in the system, the homeostatic property of the system should
+  collapse, emulating the "point of no return" in any self regulating
+  system.
 
 * Introduction
-  What problem am I actually solving?
+  The introduction of new species to an environment can cause a change
+  in the ecosystem that is detrimental to the native species of that
+  system. Constant pressure from factors such as an invasive species
+  can cause the entire system to collapse, altering the local
+  environment drastically. Since expansive ecosystems can affect the
+  global environment, climate change is almost inevitable if a
+  sufficiently large ecosystem gets destroyed.
 
-* Project requirements
-** Functional requirements
-** Non-functional requirements
+  The goal of this project is to write an agent based computer
+  simulation for the popular model "Daisyworld" and introduce invasive
+  species to the system and study the change that can occur and it's
+  affect on the homeostasis of the system.
+
+  In the original Daisyworld\cite{watson-lovelock}, there are only
+  two kinds of daisies, black and white, that flourish at the same
+  temperature. These two types of daisies modify their local
+  environment by heating or cooling it through absorbing different
+  amounts of energy depending on their color, or albedo.
+
+  The modification that will be implemented is to introduce two new
+  types of daisies on top of the two currently in place. These new
+  daisies are identical in every way bar the temperature that they
+  flourish at. Although this can be set by the end user, the main
+  exploration will be in the case of the invasive daisies flourishing
+  at a temperature that their albedo tends to modify their local
+  temperature towards. I.e: White invasive daisies grow better at a
+  lower temperature, while black invasive daisies grow better in a
+  higher temperature.
+  
+* Method
+  The simulation will be in the form of an two dimensional agent based
+  simulation that is a stochastic equivalent of the original
+  deterministic model\cite{watson-lovelock}. It will be implemented in
+  the Python programming language utilising the pyQt graphics
+  framework for user interaction.
+
+** Segregation of components
+   The simulation will be split up into several parts to ease the pain
+   of implementation. They are listed below along with a high level
+   overview of their functions.
+   - Sun
+     - Determines the luminosity that is incident on the world
+   - Tile
+     - Defines a "tile" in the world, that has a temperature and an
+       albedo defined by the existence or nonexistence of a daisy at
+       that point.
+     - Handles the life-cycle of held daisies based on the temperature
+       at the tile and age of the daisy
+   - World
+     - Requests that each tile that it contains updates its temperature based on the current incident radiation.
+     - Mixes the temperatures of the tiles adjacent to one another
+     - Maintains the main loop and updating of the world at each time step
+   - Daisy
+     - Determines the albedo for a tile
+     - Has an albedo and an optimal growing temperature.
+** Abstract method description
+   #+NAME: fig:flow
+   #+begin_src plantuml :file flow.png :exports results
+     start
+
+     fork
+     partition Update {
+               while (end?) is (no)
+                     :Update World;
+                     :Update Sun;
+                     :User defined delay;
+               endwhile (yes)
+     }
+     fork again
+     partition Drawing {
+               while (end?) is (no)
+                       :Draw world;
+               endwhile (yes)
+     }
+     fork again
+     partition Input {
+               while (end?) is (no)
+               if (user input?) then (yes)
+                  :Change variables;
+               endif
+               endwhile (yes)
+     }
+     end fork
+     end
+   #+end_src
+   #+CAPTION: High level overview of the program flow
+   #+LABEL: fig:flow
+   #+RESULTS: fig:flow
+
+   The general program flow is outlined in Figure \ref{fig:flow}. This
+   implementation is multi-threaded to ensure that user interaction
+   does not interfere with the simulation. Furthermore, since updating
+   is separated from the drawing thread, the simulation speed does not
+   rely on the graphics power of the end user system.
+
+   #+NAME: fig:update
+   #+begin_src plantuml :file updateWorld.png :exports results
+           |World|
+           start
+
+                   :Acquire lock on world;
+                   |#AntiqueWhite|Tile|
+                   while (Tile to update?)
+                   if (Daisy exists in tile?) then (no)
+                   :Attempt to spawn daisy;
+                   else (yes)
+                   |Daisy|
+                   :Request Daisy age update;
+                   endif
+                   |Tile|
+                   :Update based on object at tile;
+                   endwhile
+                   |World|
+                   :Mix temperatures with adjacent tiles;
+                   :Calculate average temperature;
+                   :Release lock on world;
+           end
+   #+end_src
+   #+CAPTION: Process of updating the world
+   #+LABEL: fig:update
+   #+RESULTS: fig:update
+   
+*** Updating daisy
+    If a daisy exists at a tile, the only changes that can occur,
+    from the perspective of the daisy, is it's birth and death.
+
+**** Germination
+
+     The germination of the daisy depends on the difference between the current
+     temperature and the optimal temperature for the daisy in question.
+     The lower the difference, the higher the chance of spawning that
+     particular type of daisy.
+
+     Therefore, the chance $B$ of a daisy growing at some point can be
+     given by:
+
+     \begin{dmath}
+     B =
+     \begin{cases}
+     1 - \gamma_1|ΔT|, &\gamma_1|ΔT| > 0 \\
+     0, &\mbox{Otherwise}
+     \end{cases}
+     \end{dmath}\\
+
+     Where $ΔT$ is the difference between the "optimal temperature" for
+     a given type of daisy and the temperature of the current tile, and
+     $\gamma_1$ is an arbitrary constant that defines the range of which the
+     daisies can spawn over.
+
+     Ideally, the daisies should only have a positive chance to grow
+     in a range of $\pm 17^{\circ}C$, so $\gamma_1$ should be set to
+     $\frac{1}{17}$ to ensure this.
+
+**** Type to germinate
+
+     The type of daisy to spawn is chosen by the amount of that type of
+     daisies in adjacent tiles, diagonal inclusive. Note that blank
+     tiles are taken as wildcard daisies, as in they contribute
+     slightly to the chance that any daisy can grow at that point. So, say a tile is
+     surrounded by 3 White daisies, 4 Black Daisies and 1 blank
+     tiles. The chance $S_w$ to spawn a white daisy can be defined by:
+
+     \begin{center}
+     \begin{dmath}
+     S_w = \frac{3+W}{8}⋅B_w
+     \end{dmath}
+     \end{center}
+
+     Likewise, the chance that a black daisy will grow can be defined
+     by:
+
+     \begin{center}
+     \begin{dmath}
+     S_b = \frac{4+W}{8}⋅B_b
+     \end{dmath}
+     \end{center}
+
+     Where $W$ is a constant that has yet to be defined for blank tile
+     contribution. Note that this should actually be very small, on
+     the order of 0.01%, to seed the world for the rest of the daisies
+     to grow.
+
+**** Death
+
+     The death of the daisy also depends on the difference between the
+     optimal temperature and the current temperature, but also takes
+     into account the current age of the daisy. This chance is reduced
+     for the change in the temperature, but increases for the age of
+     the daisy. Hence this chance $D$ can be defined by:
+
+     \begin{dmath}
+     D =
+     \begin{cases}
+     \gamma_2 |ΔT|A, &\gamma_2 |ΔT|A > 0\\
+     1, &\mbox{Otherwise}
+     \end{cases}
+     \end{dmath}\\
+
+**** Growth
+
+     The growth factor of the daisies will remain unchanged from the
+     original definition\cite{watson-lovelock}. The growth factor was
+     defined as:
+
+     \begin{dmath}
+     ΔG = 1 - 0.003265⋅ΔT^2
+     \end{dmath}
+
+     This change in the growth will be accumulated over time and a
+     daisy will be considered fully grown when this value exceeds
+     (Some value that needs to be defined)
+
+
+*** Updating tile
+    Updating the tile involves two parts, updating the daisy (which
+    has already been outlined) and updating the local temperature.
+
+    Updating the temperature of a tile depends on the albedo of the
+    object at that point, be it a type of daisy or bare ground. The
+    higher the albedo, the lower the amount of incident energy to take
+    into account when updating the temperature.
+
+    The temperature of the tile after the update can be defined by:
+
+    \begin{dmath}
+    T_{t+1} = T_t + 1 - \gamma_3⋅A⋅R
+    \end{dmath}
+
+
+
+*** Updating global temperature
+    After updating every tile, the temperatures at every tile have to
+    be mixed. This simulates the natural mixing of temperatures due to
+    wind and other factors.
+    
+    This is done by taking the average temperature of the tiles adjacent to
+    each tile, exclusive of diagonals, then adding a fraction of
+    that to the current tile. This change in temperature is buffered
+    to ensure correct calculation of the change in temperature at each
+    tile.
+
+    \begin{dmath}
+    T = T_{i,j} + \gamma_4(T_{i-1,j}+T_{i,j-1}+T_{i+1,j}+T_{i,j+1})
+    \end{dmath}
+
+    
+    # equations
+* User interaction
+  The user of the final simulation should be able to:
+   - Run a simulation of Daisyworld
+   - Modify Daisyworld to include either type of invasive daisies, or
+     both at once
+   - Set the "Optimal Temperature" for germination of invasive daisies
+   - Set the luminosity and how it changes over time, if at all
+   - Set the speed of the simulation
+   - Output luminosity vs temperature to a file for post-processing
+   - Display graphical representation of Daisyworld
+
 * Project plan
-** Risk Analysis
-   What risks are there in doing this project? How can I mitigate them?
-   To what order are the risks involved?
-   | Risk                        | Chance | Impact | Mitigation               |
-   |-----------------------------+--------+--------+--------------------------|
-   | Misunderstanding of project | Medium | High   | Clarify with supervisor  |
-   | specification               |        |        |                          |
-   |-----------------------------+--------+--------+--------------------------|
-   | Hardware failure            | Low    | Medium | Use off site backups and |
-   |                             |        |        | multiple machines        |
-   |-----------------------------+--------+--------+--------------------------|
-   | Scope creep                 | Medium | High   | Follow initial design as |
-   |                             |        |        | Closely as possible.     |
-   |                             |        |        | Implement as little      |
-   |                             |        |        | logic as required.       |
-   |-----------------------------+--------+--------+--------------------------|
-
-** Project Timeline
+** Project Time-line
    - Weeks 1 to 4
      - Read relevant documentation on Daisyworld
      - Figure out implementation of agent based models and how it can
@@ -42,23 +285,22 @@
      - Choose modification of model
    - Week 5
      - Implement initial prototype of simulation
-   - Week 6
+   - Week 6 & 7
      - Implement UI interaction for simulation
+     - Increase accuracy of simulation by properly defining equations
      - Modify simulation slightly, with user option to enable/disable
-   - Week 7
-     - Start gathering data for different parameters
-   - Week 8
-     - ???
-   - Week 9
-     - Profit!
-* Program design
+       invasive properties
+   - Week 8 onwards
+     - Gather data for different parameters
+     - Write final report
 ** Program architecture
    #+begin_src plantuml :file uml.png
      abstract class Daisy {
-	      age : int
-	      living : boolean
-	      update()
+              age : int
+              living : boolean
+              update()
      }
+
      Daisy <|-- BlackDaisy
      Daisy <|-- WhiteDaisy
      Daisy <|-- SuperBlackDaisy
@@ -68,82 +310,101 @@
      SuperWhiteDaisy <-- Tile
      SuperBlackDaisy <-- Tile
      Tile <-- World
+     Sun <-- World
+     Sun <-- InterfaceHandler
+     World <-- InterfaceHandler
+     InterfaceHandler <-- DaisyWorld
+     World <-- DaisyWorld
 
      class SuperBlackDaisy {
-	   ALBEDO = 0.25 : double
-	   OPTIMAL_TEMP = 30
-	   update()
+           ALBEDO = 0.25 : double
+           OPTIMAL_TEMP = 30
+           update()
      }
 
      class BlackDaisy {
-	   ALBEDO = 0.25 : double
-	   OPTIMAL_TEMP = 22.5 : double
-	   update()
+           ALBEDO = 0.25 : double
+           OPTIMAL_TEMP = 22.5 : double
+           update()
      }
 
      class WhiteDaisy {
-	   ALBEDO = 0.75 : double
-	   OPTIMAL_TEMP = 22.5 : double
-	   update
+           ALBEDO = 0.75 : double
+           OPTIMAL_TEMP = 22.5 : double
+           update
      }
 
      class SuperWhiteDaisy {
-	   ALBEDO = 0.25 : double
-	   OPTIMAL_TEMP = 10
-	   update()
+           ALBEDO = 0.25 : double
+           OPTIMAL_TEMP = 10
+           update()
      }
 
      class Tile {
-	   update(localRadiation : double)
-	   draw(qp : QPainter, x : int, y : int, w : int , h : int)
+           update(localRadiation : double)
+           draw(qp : QPainter, x : int, y : int, w : int , h : int)
      }
 
      class World {
-	   SIZE_X : int
-	   SIZE_Y : int
-	   update()
-	   draw()
-	   paintEvent()
+           SIZE_X : int
+           SIZE_Y : int
+           update()
+           draw()
+           paintEvent()
+           enableInvasive(white : boolean, black : boolean) : void
+     }
+
+     class DaisyWorld {
+           world : World
+           interface : interfaceHandler
+           run()
+     }
+
+     class InterfaceHandler {
+           world : World
+           sun : Sun
+           TBA
+     }
+
+     class Sun {
+           radiation : double
+           setRadiation(radiation : double)
+           setRadiationDelta(delta : double)
      }
    #+end_src
-** Basic program flow overview
-   #+begin_src plantuml :file flow.png
-    start
-
-    fork
-    while (end?) is (no)
-    :Update World;
-    :Update Sun;
-    :User defined delay;
-    endwhile (yes)
-    fork again
-    while (end?) is (no)
-    :Draw world;
-    endwhile (yes)
-    fork again
-    while (end?) is (no)
-    if (user input?) (yes)
-    :Change variables;
-    endif
-    endwhile (yes)
-    end fork
-    end
-   #+end_src
-** Update world flow
-   #+begin_src plantuml :file updateWorld.png
-     |World|
-     start
-
-	     :Acquire lock on world;
-	     |#AntiqueWhite|Tile|
-	     :Update each tile based on daisy;
-	     |Daisy|
-	     :Update daisy based on temperature and age;
-	     |World|
-	     :Mix temperatures with adjacent tiles;
-	     :Calculate average temperature;
-	     :Release lock on world;
-     end
-   #+end_src
+   
 * References
+  \bibliographystyle{plain}
+  \bibliography{ProbePosition}
+
+  \begin{thebibliography}{1}
+  \bibitem{watson-lovelock}
+  Watson, A.~J. and J.~E. Lovelock, 1983: Biological homeostasis of the global
+  environment: the parable of daisyworld. {\em Tellus}, {\bf 35B}, 284--289.
+  
+  \bibitem{bloh}
+  VON BLOH, W.; BLOCK, A.; SCHELLNHUBER, H. J.. Self-stabilization of
+  the biosphere under global change: a tutorial geophysiological
+  approach. Tellus B, [S.l.], v. 49, n. 3, Dec. 2011.
+  
+  \end{thebibliography}
+  
 * Appendix
+  This is the current (very basic) implementation of daisyworld. The
+  final program will be much more accurate and possibly more complex.
+
+  To run it you need to execute the "World.py" file with Python 3.+
+  and have the pyQt5 libraries installed on your system.
+** World
+   #+include: "../sim/World.py" src python
+** Sun
+   #+include: "../sim/Sun.py" src python
+** Tile
+   #+include: "../sim/Tile.py" src python
+** Daisy
+   #+include: "../sim/Daisy.py" src python
+** Preliminary results
+   This is a plot of the average temperature over time for the given
+   simulation. Homeostasis is clearly evident in the "flat section" at
+   around $25^{\circ}C$
+   [[../sim/testSimPlot.png]]
