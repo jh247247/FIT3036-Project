@@ -23,4 +23,3 @@ class Daisy:
 
     def die(self):
         self.living = False
-

@@ -25,6 +25,8 @@ class DaisyWorld(QWidget):
         # interface handler
         self.interfaceHandler = InterfaceHandler()
         self.interfaceHandler.addWidget(self.sun);
+        self.interfaceHandler.addWidget(self.world.getOptionsWidget());
+
 
         # Make layout
         self.mainLayout = QHBoxLayout(self)

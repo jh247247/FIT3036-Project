@@ -1,17 +1,18 @@
 import sys
 import threading
 
-from PyQt5.QtWidgets import QWidget, QApplication
-from PyQt5.QtGui import QPainter, QColor, QFont
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 
 from Tile import Tile
 from Sun import Sun
+import DaisyFactory
 
 class World(QWidget):
     SIZE_X = 20
     SIZE_Y = 20
-    START_TEMP = 20
+    START_TEMP = 22.5
     def __init__(self, sun):
         super().__init__()
 
@@ -25,7 +26,28 @@ class World(QWidget):
                            for y in range(self.SIZE_Y)]
         self.worldLock = threading.Lock()
 
+        self.initOptionsUI()
+        DaisyFactory.setWorld(self)
+
         self.update()
+
+    def initOptionsUI(self):
+        self.avgTempLabel = QLabel("Average temp: " + str(self.START_TEMP))
+        self.enableInvasiveBlack = QCheckBox("Enable invasive black")
+        self.enableInvasiveBlack.stateChanged.connect(DaisyFactory.setInvasiveBlack)
+
+        self.enableInvasiveWhite = QCheckBox("Enable invasive white")
+        self.enableInvasiveWhite.stateChanged.connect(DaisyFactory.setInvasiveWhite)
+
+        self.invasiveBlackTemp = QDoubleSpinBox()
+        self.invasiveBlackTemp.valueChanged.connect(DaisyFactory.setInvasiveBlackTemp)
+        self.invasiveBlackTemp.setValue(12.5) # TODO: not hardcode defaults
+        self.invasiveWhiteTemp = QDoubleSpinBox()
+        self.invasiveWhiteTemp.setValue(32.5) # TODO: not hardcode defaults
+        self.invasiveBlackTemp.valueChanged.connect(DaisyFactory.setInvasiveWhiteTemp)
+
+    def updateOptionsUI(self):
+        self.avgTempLabel.setText("Average temp: " + str(round(self.avgTemp,4)))
 
     def update(self):
         self.worldLock.acquire()
@@ -72,7 +94,9 @@ class World(QWidget):
         self.worldLock.release()
         self.avgTemp /= self.SIZE_X*self.SIZE_Y
         self.sun.update()
-        print(str(self.avgTemp) + " , " + str(self.sun.radiation))
+        #print(str(self.avgTemp) + " , " + str(self.sun.radiation))
+
+        self.updateOptionsUI()
 
 
     def draw(self, qp):
@@ -96,3 +120,18 @@ class World(QWidget):
         qp.end()
         super().update()
 
+    def getOptionsWidget(self):
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel("<b>World Options<\b>"))
+        layout.addWidget(self.avgTempLabel)
+        layout.addWidget(self.enableInvasiveBlack)
+        layout.addWidget(QLabel("Invasive black optimal temp"))
+        layout.addWidget(self.invasiveBlackTemp)
+        layout.addWidget(self.enableInvasiveWhite)
+        layout.addWidget(QLabel("Invasive white optimal temp"))
+        layout.addWidget(self.invasiveWhiteTemp)
+
+
+        container = QWidget()
+        container.setLayout(layout)
+        return container

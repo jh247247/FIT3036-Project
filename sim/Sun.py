@@ -25,6 +25,8 @@ class Sun(QWidget):
         self.deltaSpinner = QDoubleSpinBox(self)
         self.deltaSpinner.setDecimals(4)
         self.deltaSpinner.setSingleStep(0.0001)
+        self.deltaSpinner.setMinimum(-1)
+        self.deltaSpinner.setMaximum(1)
         self.deltaSpinner.valueChanged.connect(self.handleDeltaSpinner)
 
         self.deltaEnable = QCheckBox(self)
@@ -32,12 +34,14 @@ class Sun(QWidget):
 
         # text that we don't need to keep a reference to
         title = QLabel("<b>Sun Options<\b>",self)
-        radText = QLabel("Current Radiation:",self)
+        self.radText = QLabel("Current Radiation: " + str(round(self.radiation,4)),self)
+        seedRadText = QLabel("Seed radiation:",self)
         deltaText = QLabel("Change per tick",self)
 
         # add widgets to layout
         self.mainLayout.addWidget(title)
-        self.mainLayout.addWidget(radText)
+        self.mainLayout.addWidget(self.radText)
+        self.mainLayout.addWidget(seedRadText)
         self.mainLayout.addWidget(self.radSpinner)
         self.mainLayout.addWidget(deltaText)
         self.mainLayout.addWidget(self.deltaSpinner)
@@ -50,4 +54,6 @@ class Sun(QWidget):
         self.delta = val
 
     def update(self):
-        self.radiation += self.delta
+        if self.deltaEnable.isChecked():
+            self.radiation += self.delta
+        self.radText.setText("Current Radiation: " + str(round(self.radiation,4)))

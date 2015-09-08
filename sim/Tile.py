@@ -5,7 +5,9 @@ from PyQt5.QtGui import QPainter, QColor, QFont
 from PyQt5.QtCore import *
 
 from Daisy import Daisy
+import DaisyFactory
 
+# TODO: store coords somehow
 class Tile:
     BARE_ALBEDO = 0.5
     def __init__(self, parentWorld, temp):
@@ -41,9 +43,9 @@ class Tile:
             # daisy dependent on temperature
             if random.random() > (self.temp-22.5)/5+0.5:
                 # TODO: make albedo not magic
-                self.obj = Daisy(self, 0.7)
+                self.obj = Daisy(self, 0.75)
             else:
-                self.obj = Daisy(self, 0.2)
+                self.obj = Daisy(self, 0.25)
 
     def draw(self, qp, x, y, w, h):
         # TODO: change this so it sets color, not albedo
