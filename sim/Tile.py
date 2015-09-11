@@ -29,9 +29,9 @@ class Tile:
         # update temp
         # TODO: fix fudge factor.
         if self.obj is not None:
-            self.temp += 0.5*(rad*self.obj.albedo-0.5)
+            self.temp += 0.1*(rad*self.obj.albedo-0.5)
         else:
-            self.temp += 0.5*(rad*self.BARE_ALBEDO-0.5)
+            self.temp += 0.1*(rad*self.BARE_ALBEDO-0.5)
 
 
 

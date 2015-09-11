@@ -17,6 +17,7 @@ class World(QWidget):
         super().__init__()
 
         self.sun = sun
+        self.tick = 0
 
         # calculate start temp from sun
         self.avgTemp = self.START_TEMP
@@ -52,10 +53,10 @@ class World(QWidget):
     def update(self):
         self.worldLock.acquire()
 
-        threading.Timer(0.1,self.update).start()
+
+        self.tick += 1
 
         tempTileArr = []
-
 
         # let the tiles update their temps
         for i in range(self.SIZE_X):
@@ -65,11 +66,6 @@ class World(QWidget):
         for t in tempTileArr:
             t.update(self.sun.radiation)
 
-
-        # TODO: let the temperature of adjacent tiles affect each other
-        # Cannot do this in place, have to make an array of whatever
-        # change is required and apply it, multiple times for multiple
-        # stages?
 
         deltaTempTiles = [[0 for x in range(self.SIZE_X)] \
                            for y in range(self.SIZE_Y)]
@@ -87,7 +83,7 @@ class World(QWidget):
                 deltaTempTiles[i][j] += self.worldTiles[i][j].temp - \
                                         self.worldTiles[i][(j+1)%self.SIZE_Y].temp
                 deltaTempTiles[i][j] /= 4 # TODO: fix factor...
-                deltaTempTiles[i][j] *= 0.5
+                deltaTempTiles[i][j] *= 0.2
 
         for i in range(self.SIZE_X):
             for j in range(self.SIZE_Y):
@@ -101,15 +97,19 @@ class World(QWidget):
         self.worldLock.release()
         self.avgTemp /= self.SIZE_X*self.SIZE_Y
         self.sun.update()
-        #print(str(self.avgTemp) + " , " + str(self.sun.radiation))
+        print(str(self.avgTemp) + " , " + str(self.sun.radiation) + \
+              " , "+ str(self.tick))
 
         self.updateOptionsUI()
+
+        threading.Timer(0.001,self.update).start()
 
 
     def draw(self, qp):
         size = self.size()
         incX = size.width()/self.SIZE_X
         incY = size.height()/self.SIZE_Y
+
 
         # let the tiles draw themselves
         self.worldLock.acquire()
@@ -144,4 +144,4 @@ class World(QWidget):
         return container
 
     def getTile(self,coords):
-        return self.worldTiles[coords[0]][coords[1]]
+        return self.worldTiles[coords[0]%self.SIZE_X][coords[1]%self.SIZE_Y]

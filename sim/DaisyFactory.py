@@ -16,7 +16,7 @@ blackIAttr = [0.75, 32.5]
 # enough for now
 attrList = [whiteAttr, blackAttr]
 
-chanceDistr = 1/17
+chanceDistr = 1/10
 blankTileChance = 0.01
 
 # This feels bad...
@@ -46,15 +46,12 @@ def updateAttr():
     if invasiveWhiteEnabled is not 0:
         attrList.append(whiteIAttr)
 
-    print(attrList)
 
 
 def setInvasiveBlackTemp(temp):
-    print("Set black: " + str(temp))
     blackIAttr[-1] = temp
 
 def setInvasiveWhiteTemp(temp):
-    print("Set white: " + str(temp))
     whiteIAttr[-1] = temp
 
 def createDaisy(tile):
@@ -70,10 +67,6 @@ def createDaisy(tile):
     for x in range(-1,2):
         for y in range(-1,2):
             if(x != y and y != 0):
-                if(tile.coords[0]+x < world.SIZE_X and
-                   tile.coords[0]+x > -1 and
-                   tile.coords[1]+y < world.SIZE_Y and
-                   tile.coords[1]+y > -1):
                     adj.append(world.getTile((tile.coords[0]+x,
                                              tile.coords[1]+y)))
 
