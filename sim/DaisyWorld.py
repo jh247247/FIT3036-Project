@@ -42,6 +42,7 @@ class DaisyWorld(QWidget):
         self.show()
 
 if __name__ == '__main__':
+    random.seed()
     app = QApplication(sys.argv)
     ex = DaisyWorld()
     sys.exit(app.exec_())

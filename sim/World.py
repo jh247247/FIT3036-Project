@@ -1,4 +1,4 @@
-import sys
+import sys, random
 import threading
 
 from PyQt5.QtWidgets import *
@@ -10,8 +10,8 @@ from Sun import Sun
 import DaisyFactory
 
 class World(QWidget):
-    SIZE_X = 20
-    SIZE_Y = 20
+    SIZE_X = 35
+    SIZE_Y = 35
     START_TEMP = 22.5
     def __init__(self, sun):
         super().__init__()
@@ -21,7 +21,7 @@ class World(QWidget):
         # calculate start temp from sun
         self.avgTemp = self.START_TEMP
         # TODO: variation dependent on the position of the tile?
-        self.worldTiles = [[Tile(self, World.START_TEMP) \
+        self.worldTiles = [[Tile(self, World.START_TEMP, (x,y)) \
                             for x in range(self.SIZE_X)] \
                            for y in range(self.SIZE_Y)]
         self.worldLock = threading.Lock()
@@ -41,10 +41,10 @@ class World(QWidget):
 
         self.invasiveBlackTemp = QDoubleSpinBox()
         self.invasiveBlackTemp.valueChanged.connect(DaisyFactory.setInvasiveBlackTemp)
-        self.invasiveBlackTemp.setValue(12.5) # TODO: not hardcode defaults
+        self.invasiveBlackTemp.setValue(32.5) # TODO: not hardcode defaults
         self.invasiveWhiteTemp = QDoubleSpinBox()
-        self.invasiveWhiteTemp.setValue(32.5) # TODO: not hardcode defaults
-        self.invasiveBlackTemp.valueChanged.connect(DaisyFactory.setInvasiveWhiteTemp)
+        self.invasiveWhiteTemp.valueChanged.connect(DaisyFactory.setInvasiveWhiteTemp)
+        self.invasiveWhiteTemp.setValue(12.5) # TODO: not hardcode defaults
 
     def updateOptionsUI(self):
         self.avgTempLabel.setText("Average temp: " + str(round(self.avgTemp,4)))
@@ -52,12 +52,18 @@ class World(QWidget):
     def update(self):
         self.worldLock.acquire()
 
-        threading.Timer(0.001,self.update).start()
-        self.avgTemp = 0
+        threading.Timer(0.1,self.update).start()
+
+        tempTileArr = []
+
+
         # let the tiles update their temps
         for i in range(self.SIZE_X):
-            for j in range(self.SIZE_Y):
-                self.worldTiles[i][j].update(self.sun.radiation)
+            tempTileArr.extend(self.worldTiles[i])
+
+        random.shuffle(tempTileArr)
+        for t in tempTileArr:
+            t.update(self.sun.radiation)
 
 
         # TODO: let the temperature of adjacent tiles affect each other
@@ -81,12 +87,13 @@ class World(QWidget):
                 deltaTempTiles[i][j] += self.worldTiles[i][j].temp - \
                                         self.worldTiles[i][(j+1)%self.SIZE_Y].temp
                 deltaTempTiles[i][j] /= 4 # TODO: fix factor...
-                deltaTempTiles[i][j] *= 0.1
+                deltaTempTiles[i][j] *= 0.5
 
         for i in range(self.SIZE_X):
             for j in range(self.SIZE_Y):
                 self.worldTiles[i][j].temp -= deltaTempTiles[i][j]
 
+        self.avgTemp = 0
         for i in range(self.SIZE_X):
             for j in range(self.SIZE_Y):
                 self.avgTemp += self.worldTiles[i][j].temp
@@ -135,3 +142,6 @@ class World(QWidget):
         container = QWidget()
         container.setLayout(layout)
         return container
+
+    def getTile(self,coords):
+        return self.worldTiles[coords[0]][coords[1]]

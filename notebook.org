@@ -174,4 +174,7 @@
     http://www.dpi.inpe.br/gilberto/cursos/cst-317/papers/daisyworld_review.pdf
     -
 *** Self stabilization of the biosphere under global change
+    :PROPERTIES:
+    :ID:       aa18bb5a-b300-4293-89fa-46e2ad1a8d84
+    :END:
     - a tutorial geological approach
