@@ -43,9 +43,23 @@ class World(QWidget):
         self.invasiveBlackTemp = QDoubleSpinBox()
         self.invasiveBlackTemp.valueChanged.connect(DaisyFactory.setInvasiveBlackTemp)
         self.invasiveBlackTemp.setValue(32.5) # TODO: not hardcode defaults
+
         self.invasiveWhiteTemp = QDoubleSpinBox()
         self.invasiveWhiteTemp.valueChanged.connect(DaisyFactory.setInvasiveWhiteTemp)
         self.invasiveWhiteTemp.setValue(12.5) # TODO: not hardcode defaults
+
+        self.resetButton = QPushButton("Reset Simulation")
+        self.resetButton.released.connect(self.resetWorld)
+
+    def resetWorld(self):
+        self.worldLock.acquire()
+        self.worldTiles = [[Tile(self, World.START_TEMP, (x,y)) \
+                            for x in range(self.SIZE_X)] \
+                           for y in range(self.SIZE_Y)]
+        self.worldLock.release()
+
+        self.tick = 0
+
 
     def updateOptionsUI(self):
         self.avgTempLabel.setText("Average temp: " + str(round(self.avgTemp,4)))
@@ -137,6 +151,7 @@ class World(QWidget):
         layout.addWidget(self.enableInvasiveWhite)
         layout.addWidget(QLabel("Invasive white optimal temp"))
         layout.addWidget(self.invasiveWhiteTemp)
+        layout.addWidget(self.resetButton)
 
 
         container = QWidget()
