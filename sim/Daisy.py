@@ -1,8 +1,8 @@
 import random
 
 class Daisy:
-    MAX_GROWTH = 100
-    TEMP_FUDGE = 0.01
+    MAX_GROWTH = 20
+    TEMP_FUDGE = 0.05
     # TODO: add optimal temps for types of daisy
     def __init__(self, parentTile, albedo, optTemp):
         self.growth = 0
