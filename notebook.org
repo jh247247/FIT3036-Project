@@ -178,3 +178,27 @@
     :ID:       aa18bb5a-b300-4293-89fa-46e2ad1a8d84
     :END:
     - a tutorial geological approach
+* <2015-09-01 Tue>
+  Made the text within the tile change color depending on the current temp.
+  Right now it is a rather naive method, might want to fix that later.
+** <2015-09-14 Mon>
+   Reworked the color temp to use the Hue from 0 to 255, I.e red to dark purple.
+   Now it looks fancier, a better heat map...
+
+* <2015-09-07 Mon>
+  Moving on to implementing UI now, really quite easy since I chose QT as the framework.
+  Not exactly the best architecture though, with each inner stage having to keep a
+  reference to their parent in order to implement some stuff, like daisies having to
+  know the temp of the tile they occupy. It works, so no need to change it now.
+* <2015-09-11 Fri>
+  I noticed that there was way too much oscillation to classify the simulation as "homeostatic",
+  I.e the temperature would deviate up to 10 degrees from the "optimal temp" of 22.5 in a system
+  with only normal daisies at 1.0 luminosity.
+
+  To fix this I made the daisies not only die depending on some factor of the difference between
+  the "optimal temp" and the current temp, but I also made the daisies lifespan much shorter, from
+  100 ticks to 20 ticks. Oscillation is now about ± 2.5 degrees from the optimal temp.
+** TODO Implementation
+   - Have to figure out a way to make all the optional daisies die based on user input
+     - Idea: When checking daisies, compare them against current available types of daisies,
+       if they don't exist, kill them.
