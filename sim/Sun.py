@@ -3,12 +3,12 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 class Sun(QWidget):
-    def __init__(self):
+    def __init__(self,args):
         super().__init__()
         # radiation value of 1 means that if albedo is 0.5,
         # temperature should eventually become 22.5
-        self.radiation = 1.0
-        self.delta = 0
+        self.radiation = args.radiation[0]
+        self.delta = args.delta[0]
         self.initUI()
 
     def initUI(self):

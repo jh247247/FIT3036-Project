@@ -15,7 +15,7 @@ class DaisyWorld(QWidget):
         super().__init__()
 
         # make World stuff
-        self.sun = Sun()
+        self.sun = Sun(args)
         self.world = World(self.sun)
 
         if args.no_gui is False:
@@ -58,8 +58,14 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--iwhite',metavar='W', type=float, nargs='?',
                         default=0,
                         help='Enable invasive white daisies with temp W')
+    parser.add_argument('-r', '--radiation',metavar='R', type=float, nargs=1,
+                        default=[1.0],
+                        help='Set initial sun radiation R')
+    parser.add_argument('-d', '--delta',metavar='D', type=float, nargs=1,
+                        default=[0.0],
+                        help='Set radiation change per tick D')
 
-    
+
 
     args = parser.parse_args()
 
