@@ -16,7 +16,7 @@ class DaisyWorld(QWidget):
 
         # make World stuff
         self.sun = Sun(args)
-        self.world = World(self.sun)
+        self.world = World(self.sun,args)
 
         if args.no_gui is False:
             self.initUI()
@@ -69,9 +69,11 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    print(args)
-
     random.seed()
+
     app = QApplication(sys.argv)
+
     ex = DaisyWorld(args)
-    sys.exit(app.exec_())
+
+    if args.no_gui is False:
+        sys.exit(app.exec_())

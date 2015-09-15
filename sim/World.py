@@ -13,14 +13,15 @@ class World(QWidget):
     SIZE_X = 35
     SIZE_Y = 35
     START_TEMP = 22.5
-    def __init__(self, sun):
+    def __init__(self, sun, args):
         super().__init__()
 
         self.sun = sun
         self.tick = 0
+        self.stop_tick = args.stop_tick
 
         # calculate start temp from sun
-        self.avgTemp = self.START_TEMP
+        self.avgTemp = args.temp
         # TODO: variation dependent on the position of the tile?
         self.worldTiles = [[Tile(self, World.START_TEMP, (x,y)) \
                             for x in range(self.SIZE_X)] \
@@ -29,6 +30,14 @@ class World(QWidget):
 
         self.initOptionsUI()
         DaisyFactory.setWorld(self)
+
+        if args.iblack is not 0:
+            self.enableInvasiveBlack.setChecked(True)
+            self.invasiveBlackTemp.setValue(args.iblack)
+
+        if args.iwhite is not 0:
+            self.enableInvasiveWhite.setChecked(True)
+            self.invasiveWhiteTemp.setValue(args.iwhite)
 
         self.update()
 
@@ -69,6 +78,8 @@ class World(QWidget):
 
 
         self.tick += 1
+        if self.tick > self.stop_tick:
+            quit() # could be more elegant..
 
         tempTileArr = []
 
