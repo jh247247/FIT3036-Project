@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import sys, random
+import argparse
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -10,15 +11,15 @@ from InterfaceHandler import InterfaceHandler
 
 class DaisyWorld(QWidget):
 
-    def __init__(self):
+    def __init__(self, args):
         super().__init__()
 
         # make World stuff
         self.sun = Sun()
         self.world = World(self.sun)
 
-
-        self.initUI()
+        if args.no_gui is False:
+            self.initUI()
 
 
     def initUI(self):
@@ -42,7 +43,29 @@ class DaisyWorld(QWidget):
         self.show()
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="Simulation for daisyworld")
+    parser.add_argument('-g', '--no-gui', action='store_true',
+                        help='Do not display UI')
+    parser.add_argument('-t', '--temp',metavar='T', type=float, nargs=1,
+                        default=World.START_TEMP,
+                        help='Set universal starting temp to T')
+    parser.add_argument('-s', '--stop-tick',metavar='S', type=float, nargs='?',
+                        default=5000,
+                        help='Stop simulation at time tick S')
+    parser.add_argument('-b', '--iblack' ,metavar='B', type=float, nargs='?',
+                        default=0,
+                        help='Enable invasive black daisies with temp B')
+    parser.add_argument('-w', '--iwhite',metavar='W', type=float, nargs='?',
+                        default=0,
+                        help='Enable invasive white daisies with temp W')
+
+    
+
+    args = parser.parse_args()
+
+    print(args)
+
     random.seed()
     app = QApplication(sys.argv)
-    ex = DaisyWorld()
+    ex = DaisyWorld(args)
     sys.exit(app.exec_())
