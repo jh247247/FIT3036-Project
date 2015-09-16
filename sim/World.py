@@ -78,7 +78,7 @@ class World(QWidget):
 
 
         self.tick += 1
-        if self.tick > self.stop_tick:
+        if self.stop_tick is not 0 and self.tick > self.stop_tick:
             quit() # could be more elegant..
 
         tempTileArr = []

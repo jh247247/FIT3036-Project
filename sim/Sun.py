@@ -11,6 +11,9 @@ class Sun(QWidget):
         self.delta = args.delta[0]
         self.initUI()
 
+        if self.delta is not 0:
+            self.deltaEnable.setChecked(True)
+
     def initUI(self):
         # make it so the widget doesnt take up the entire screen
         self.setMaximumWidth(300)
