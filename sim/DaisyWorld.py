@@ -50,7 +50,7 @@ if __name__ == '__main__':
                         default=World.START_TEMP,
                         help='Set universal starting temp to T')
     parser.add_argument('-s', '--stop-tick',metavar='S', type=float, nargs='?',
-                        default=5000,
+                        default=0,
                         help='Stop simulation at time tick S')
     parser.add_argument('-b', '--iblack' ,metavar='B', type=float, nargs='?',
                         default=0,

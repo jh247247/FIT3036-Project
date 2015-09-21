@@ -9,6 +9,9 @@ import DaisyFactory
 
 class Tile:
     BARE_ALBEDO = 0.5
+    HEAT_TRANSFER = 0.000169205
+    ENV_TEMP = -273
+    ALBEDO_FACTOR = 0.1
     def __init__(self, parentWorld, temp, coords):
         self.parent = parentWorld
         self.obj = None
@@ -29,9 +32,11 @@ class Tile:
         # update temp
         # TODO: fix fudge factor.
         if self.obj is not None:
-            self.temp += 0.1*(rad*self.obj.albedo-0.5)
+            albedo = self.obj.albedo
         else:
-            self.temp += 0.1*(rad*self.BARE_ALBEDO-0.5)
+            albedo = 0.5
+
+        self.temp += self.HEAT_TRANSFER*(self.ENV_TEMP-self.temp) + self.ALBEDO_FACTOR*albedo*rad
 
 
 
