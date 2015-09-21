@@ -16,8 +16,8 @@ blackIAttr = [0.75, 32.5]
 # enough for now
 attrList = [whiteAttr, blackAttr]
 
-chanceDistr = 1/10
-blankTileChance = 0.01
+chanceDistr = 1/17
+blankTileChance = 0.05
 
 # This feels bad...
 def setWorld(w):

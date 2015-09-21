@@ -19,11 +19,15 @@ class World(QWidget):
         self.sun = sun
         self.tick = 0
         self.stop_tick = args.stop_tick
+        if args.no_gui is True:
+            self.tick_time = 0
+        else:
+            self.tick_time = 0.001
 
         # calculate start temp from sun
-        self.avgTemp = args.temp
+        self.avgTemp = args.temp[0]
         # TODO: variation dependent on the position of the tile?
-        self.worldTiles = [[Tile(self, World.START_TEMP, (x,y)) \
+        self.worldTiles = [[Tile(self, args.temp[0], (x,y)) \
                             for x in range(self.SIZE_X)] \
                            for y in range(self.SIZE_Y)]
         self.worldLock = threading.Lock()
@@ -127,7 +131,7 @@ class World(QWidget):
 
         self.updateOptionsUI()
 
-        threading.Timer(0.001,self.update).start()
+        threading.Timer(self.tick_time,self.update).start()
 
 
     def draw(self, qp):

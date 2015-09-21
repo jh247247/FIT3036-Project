@@ -47,7 +47,7 @@ if __name__ == '__main__':
     parser.add_argument('-g', '--no-gui', action='store_true',
                         help='Do not display UI')
     parser.add_argument('-t', '--temp',metavar='T', type=float, nargs=1,
-                        default=World.START_TEMP,
+                        default=[World.START_TEMP],
                         help='Set universal starting temp to T')
     parser.add_argument('-s', '--stop-tick',metavar='S', type=float, nargs='?',
                         default=0,

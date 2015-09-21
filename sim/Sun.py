@@ -9,6 +9,7 @@ class Sun(QWidget):
         # temperature should eventually become 22.5
         self.radiation = args.radiation[0]
         self.delta = args.delta[0]
+
         self.initUI()
 
         if self.delta is not 0:
