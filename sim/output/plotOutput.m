@@ -18,5 +18,6 @@ col = varycolor(length(default_csv));
 for i = 1:length(default_csv)
   plot(default_data(:,3,i),default_data(:,1,i), 'Color', col(i,:))
 end
-
-waitforbuttonpress
+#mean(default_data(:,1,:),2)
+#plot(mean(default_data(:,3,:),2),mean(default_data(:,1,:),2), '.k')
+print('test.png','-dpng')

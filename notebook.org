@@ -202,3 +202,14 @@
    - Have to figure out a way to make all the optional daisies die based on user input
      - Idea: When checking daisies, compare them against current available types of daisies,
        if they don't exist, kill them.
+* <2015-09-22 Tue>
+  Introduction
+  - include agent-based models, how, why, references, examples.
+    - How it has been used in other research
+    - Why we have decided to use one
+    - Remember to add references to other research that use an agent based model
+    - Add examples of how they are used
+
+  - STRUCTURE, include a paragraph that explains how the paper is laid out
+- equations, can use equation references from other papers
+- how are we going to use the simulation?

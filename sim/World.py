@@ -13,6 +13,8 @@ class World(QWidget):
     SIZE_X = 35
     SIZE_Y = 35
     START_TEMP = 22.5
+    BOLTZMANN_CONSTANT = 5.670373e-8
+    SUN_WATTMETER_PER_UNIT = 3458.62
     def __init__(self, sun, args):
         super().__init__()
 
@@ -26,7 +28,9 @@ class World(QWidget):
 
         # calculate start temp from sun
         self.avgTemp = args.temp[0]
-        # TODO: variation dependent on the position of the tile?
+        self.avgAlbedo = 0
+
+        # init temp from given val
         self.worldTiles = [[Tile(self, args.temp[0], (x,y)) \
                             for x in range(self.SIZE_X)] \
                            for y in range(self.SIZE_Y)]
@@ -80,6 +84,29 @@ class World(QWidget):
     def update(self):
         self.worldLock.acquire()
 
+        # calculate average temperature and albedo of world
+        self.avgTemp = 0
+        self.avgAlbedo = 0
+        for i in range(self.SIZE_X):
+            for j in range(self.SIZE_Y):
+                self.avgTemp += self.worldTiles[i][j].temp
+                self.avgAlbedo += self.worldTiles[i][j].getAlbedo()
+        self.avgTemp /= self.SIZE_X*self.SIZE_Y
+        self.avgAlbedo /= self.SIZE_X*self.SIZE_Y
+        print(str(1-self.avgAlbedo))
+
+        # calculate emission temp of world (i.e: temp of world if
+        # daisies do not die and left to stabilize at current radiation)
+        self.emissionTemp = (self.sun.radiation*self.SUN_WATTMETER_PER_UNIT/ \
+                        (4*self.BOLTZMANN_CONSTANT)* \
+                        (self.avgAlbedo)) \
+                        **(1/4)
+
+        print(str(self.avgTemp) + " , " + \
+              str(self.sun.radiation) + \
+              " , "+ str(self.tick) \
+              + " , " + str(self.avgAlbedo) \
+              + " , " + str(self.emissionTemp-273))
 
         self.tick += 1
         if self.stop_tick is not 0 and self.tick > self.stop_tick:
@@ -93,7 +120,8 @@ class World(QWidget):
 
         random.shuffle(tempTileArr)
         for t in tempTileArr:
-            t.update(self.sun.radiation)
+            t.update(self.sun.radiation,
+                     self.emissionTemp)
 
 
         deltaTempTiles = [[0 for x in range(self.SIZE_X)] \
@@ -118,16 +146,10 @@ class World(QWidget):
             for j in range(self.SIZE_Y):
                 self.worldTiles[i][j].temp -= deltaTempTiles[i][j]
 
-        self.avgTemp = 0
-        for i in range(self.SIZE_X):
-            for j in range(self.SIZE_Y):
-                self.avgTemp += self.worldTiles[i][j].temp
-
         self.worldLock.release()
-        self.avgTemp /= self.SIZE_X*self.SIZE_Y
+
         self.sun.update()
-        print(str(self.avgTemp) + " , " + str(self.sun.radiation) + \
-              " , "+ str(self.tick))
+
 
         self.updateOptionsUI()
 
