@@ -47,7 +47,12 @@ class World(QWidget):
             self.enableInvasiveWhite.setChecked(True)
             self.invasiveWhiteTemp.setValue(args.iwhite)
 
+        self.threadRunning = True
+
         self.update()
+
+    def closeEvent(self, event):
+        self.threadRunning = False
 
     def initOptionsUI(self):
         self.avgTempLabel = QLabel("Average temp: " + str(self.START_TEMP))
@@ -97,19 +102,27 @@ class World(QWidget):
 
         # calculate emission temp of world (i.e: temp of world if
         # daisies do not die and left to stabilize at current radiation)
-        self.emissionTemp = (self.sun.radiation*self.SUN_WATTMETER_PER_UNIT/ \
+        self.expectedTemp = (self.sun.radiation*self.SUN_WATTMETER_PER_UNIT/ \
                         (4*self.BOLTZMANN_CONSTANT)* \
                         (self.avgAlbedo)) \
                         **(1/4)
 
+        self.emissionTemp = (self.sun.radiation*self.SUN_WATTMETER_PER_UNIT/ \
+                        (4*self.BOLTZMANN_CONSTANT)* \
+                        (0.5)) \
+                        **(1/4)
+
+
         print(str(self.avgTemp) + " , " + \
               str(self.sun.radiation) + \
               " , "+ str(self.tick) \
-              + " , " + str(self.avgAlbedo) \
-              + " , " + str(self.emissionTemp-273))
+              + " , " + str(1-self.avgAlbedo) \
+              + " , " + str(self.emissionTemp-273)
+              + " , " + str(self.expectedTemp-273))
 
         self.tick += 1
         if self.stop_tick is not 0 and self.tick > self.stop_tick:
+            self.threadRunning = False
             quit() # could be more elegant..
 
         tempTileArr = []
@@ -120,8 +133,7 @@ class World(QWidget):
 
         random.shuffle(tempTileArr)
         for t in tempTileArr:
-            t.update(self.sun.radiation,
-                     self.emissionTemp)
+            t.update(self.sun.radiation)
 
 
         deltaTempTiles = [[0 for x in range(self.SIZE_X)] \
@@ -153,7 +165,8 @@ class World(QWidget):
 
         self.updateOptionsUI()
 
-        threading.Timer(self.tick_time,self.update).start()
+        if self.threadRunning is True:
+            threading.Timer(self.tick_time,self.update).start()
 
 
     def draw(self, qp):
