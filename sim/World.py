@@ -98,7 +98,6 @@ class World(QWidget):
                 self.avgAlbedo += self.worldTiles[i][j].getAlbedo()
         self.avgTemp /= self.SIZE_X*self.SIZE_Y
         self.avgAlbedo /= self.SIZE_X*self.SIZE_Y
-        print(str(1-self.avgAlbedo))
 
         # calculate emission temp of world (i.e: temp of world if
         # daisies do not die and left to stabilize at current radiation)
