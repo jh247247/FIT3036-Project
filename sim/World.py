@@ -133,7 +133,7 @@ class World(QWidget):
 
         random.shuffle(tempTileArr)
         for t in tempTileArr:
-            t.update(self.sun.radiation)
+            t.update(self.sun.radiation,self.emissionTemp-273)
 
 
         deltaTempTiles = [[0 for x in range(self.SIZE_X)] \

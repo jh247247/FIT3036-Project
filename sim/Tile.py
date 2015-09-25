@@ -4,21 +4,20 @@ from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtGui import QPainter, QColor, QFont
 from PyQt5.QtCore import *
 
+import World
 from Daisy import Daisy
 import DaisyFactory
 
 class Tile:
     BARE_ALBEDO = 0.5
-    HEAT_TRANSFER = 0.000169205
-    ENV_TEMP = -273
-    ALBEDO_FACTOR = 0.1
+    HEAT_TRANSFER = 0.005
     def __init__(self, parentWorld, temp, coords):
         self.parent = parentWorld
         self.obj = None
         self.temp = temp
         self.coords = coords
 
-    def update(self, rad):
+    def update(self, rad, emissionTemp):
         if self.obj is not None:
             self.obj.update()
             # obj died, clear
@@ -36,7 +35,11 @@ class Tile:
         else:
             albedo = 0.5
 
-        self.temp += self.HEAT_TRANSFER*(self.ENV_TEMP-self.temp) + self.ALBEDO_FACTOR*albedo*rad
+        finalTemp = (rad*World.World.SUN_WATTMETER_PER_UNIT/ \
+                        (4*World.World.BOLTZMANN_CONSTANT)* \
+                        (albedo)) \
+                        **(1/4)
+        self.temp += self.HEAT_TRANSFER*((finalTemp-273)-self.temp)
 
     def getAlbedo(self):
         if self.obj is not None:
