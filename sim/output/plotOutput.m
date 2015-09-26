@@ -12,12 +12,19 @@ end
 
 fig = figure('Visible','off')
 hold on
-#x = default_data(:,3,1)
-#y = default_data(:,1,1)
-#plot(x,y)
 
 col = varycolor(length(default_csv));
 for i = 1:length(default_csv)
   plot(default_data(:,2,i),default_data(:,1,i), 'Color', col(i,:))
 end
 print(fig, 'out.png','-dpng')
+
+close all
+
+defaultAvg = mean(default_data,3);
+fig = figure('Visible','off')
+plot(defaultAvg(:,2), defaultAvg(:,1),'.k')
+hold on
+plot(defaultAvg(:,2), defaultAvg(:,5),'r')
+plot(defaultAvg(:,2), defaultAvg(:,6),'g')
+print(fig, 'outavg.png','-dpng')
