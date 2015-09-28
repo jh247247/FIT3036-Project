@@ -73,12 +73,10 @@ def createDaisy(tile):
     # if by chance no daisy spawns, return None
 
     # get adjacent tiles
-    adj = []
-    for x in range(-1,2):
-        for y in range(-1,2):
-            if(x != y and y != 0):
-                    adj.append(world.getTile((tile.coords[0]+x,
-                                             tile.coords[1]+y)))
+    adj = [world.getTile((tile.coords[0]+x, tile.coords[1]+y))
+           for x in range(-1,2)
+           for y in range(-1,2)
+           if (x != y and y != 0)]
 
     # shuffle list so no bias
     random.shuffle(adj)
