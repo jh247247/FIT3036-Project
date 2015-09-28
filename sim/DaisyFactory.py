@@ -86,8 +86,8 @@ def createDaisy(tile):
     # try spawning off each tile
     for t in adj:
         if(t.obj is not None):
-            if random.random() < 1-chanceDistr*abs(t.temp -
-                                                   t.obj.optTemp):
+            chance = 0.0032625*(t.obj.optTemp - tile.temp)**2
+            if random.random() > chance:
                 # spawn this type of daisy
                 return Daisy(t, t.obj.albedo,
                              t.obj.optTemp)
@@ -102,10 +102,9 @@ def createDaisy(tile):
                 # yes, I know shuffle is done in place. Doesn't
                 # matter for this application
                 random.shuffle(attrList)
+                chance = 0.0032625*(attrList[0][1] - tile.temp)**2
                 # attempt to spawn daisy based on difference in temp.
-                if random.random() < 1-chanceDistr*abs(tile.temp -
-                                                       attrList[0][-1]):
-
+                if random.random() > chance:
                     # spawn random type of daisy
                     return Daisy(t,attrList[0][0],
                                  attrList[0][1])
