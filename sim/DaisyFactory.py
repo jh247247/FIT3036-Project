@@ -19,6 +19,9 @@ attrList = [whiteAttr, blackAttr]
 chanceDistr = 1/17
 blankTileChance = 0.05
 
+minTemp = 0
+maxTemp = 0
+
 # This feels bad...
 def setWorld(w):
     global world
@@ -38,6 +41,8 @@ def updateAttr():
     global invasiveBlackEnabled
     global invasiveWhiteEnabled
     global attrList
+    global minTemp
+    global maxTemp
     attrList = [whiteAttr, blackAttr]
 
     if invasiveBlackEnabled is not 0:
@@ -46,6 +51,8 @@ def updateAttr():
     if invasiveWhiteEnabled is not 0:
         attrList.append(whiteIAttr)
 
+    minTemp = min([a[-1]-17 for a in attrList])
+    maxTemp = max([a[-1]+17 for a in attrList])
 
 
 def setInvasiveBlackTemp(temp):
@@ -56,7 +63,10 @@ def setInvasiveWhiteTemp(temp):
 
 def createDaisy(tile):
     global world
-    if world is None:
+    global minTemp
+    global maxTemp
+    # either no world yet or cannot even hope to spawn new daisies here.
+    if world is None or tile.temp < minTemp or tile.temp > maxTemp:
         return None
 
     # figure out what daisy to spawn, return it.

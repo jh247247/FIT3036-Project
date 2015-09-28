@@ -16,6 +16,7 @@ class Tile:
         self.obj = None
         self.temp = temp
         self.coords = coords
+        self.albedo = self.BARE_ALBEDO
 
     def update(self, rad, emissionTemp):
         if self.obj is not None:
@@ -31,20 +32,15 @@ class Tile:
         # update temp
         # TODO: fix fudge factor.
         if self.obj is not None:
-            albedo = self.obj.albedo
+            self.albedo = self.obj.albedo
         else:
-            albedo = 0.5
+            self.albedo = self.BARE_ALBEDO
 
         finalTemp = (rad*World.World.SUN_WATTMETER_PER_UNIT/ \
-                        (4*World.World.BOLTZMANN_CONSTANT)* \
-                        (albedo)) \
-                        **(1/4)
+                     (4*World.World.BOLTZMANN_CONSTANT)* \
+                     (self.albedo)) \
+                     **(1/4)
         self.temp += self.HEAT_TRANSFER*((finalTemp-273)-self.temp)
-
-    def getAlbedo(self):
-        if self.obj is not None:
-            return self.obj.albedo
-        return self.BARE_ALBEDO
 
     def spawn(self):
         self.obj = DaisyFactory.createDaisy(self)

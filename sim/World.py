@@ -1,5 +1,6 @@
 import sys, random
 import threading
+import itertools
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -8,6 +9,8 @@ from PyQt5.QtCore import *
 from Tile import Tile
 from Sun import Sun
 import DaisyFactory
+
+import yappi
 
 class World(QWidget):
     SIZE_X = 35
@@ -34,10 +37,13 @@ class World(QWidget):
         self.worldTiles = [[Tile(self, args.temp[0], (x,y)) \
                             for x in range(self.SIZE_X)] \
                            for y in range(self.SIZE_Y)]
+
+        self.linWorld = list(itertools.chain(*self.worldTiles))
         self.worldLock = threading.Lock()
 
         self.initOptionsUI()
         DaisyFactory.setWorld(self)
+
 
         if args.iblack is not 0:
             self.enableInvasiveBlack.setChecked(True)
@@ -47,9 +53,13 @@ class World(QWidget):
             self.enableInvasiveWhite.setChecked(True)
             self.invasiveWhiteTemp.setValue(args.iwhite)
 
+        DaisyFactory.updateAttr()
+
         self.threadRunning = True
 
-        self.update()
+        yappi.start()
+        threading.Thread(target=self.updateLoop).start()
+
 
     def closeEvent(self, event):
         self.threadRunning = False
@@ -84,7 +94,12 @@ class World(QWidget):
 
 
     def updateOptionsUI(self):
-        self.avgTempLabel.setText("Average temp: " + str(round(self.avgTemp,4)))
+        self.avgTempLabel.setText("Average temp: " +
+                                  str(round(self.avgTemp,4)))
+
+    def updateLoop(self):
+        while True:
+            self.update()
 
     def update(self):
         self.worldLock.acquire()
@@ -95,7 +110,7 @@ class World(QWidget):
         for i in range(self.SIZE_X):
             for j in range(self.SIZE_Y):
                 self.avgTemp += self.worldTiles[i][j].temp
-                self.avgAlbedo += self.worldTiles[i][j].getAlbedo()
+                self.avgAlbedo += self.worldTiles[i][j].albedo
         self.avgTemp /= self.SIZE_X*self.SIZE_Y
         self.avgAlbedo /= self.SIZE_X*self.SIZE_Y
 
@@ -122,16 +137,11 @@ class World(QWidget):
         self.tick += 1
         if self.stop_tick is not 0 and self.tick > self.stop_tick:
             self.threadRunning = False
+            yappi.get_func_stats().print_all()
             quit() # could be more elegant..
 
-        tempTileArr = []
-
-        # let the tiles update their temps
-        for i in range(self.SIZE_X):
-            tempTileArr.extend(self.worldTiles[i])
-
-        random.shuffle(tempTileArr)
-        for t in tempTileArr:
+        #random.shuffle(self.linWorld)
+        for t in self.linWorld:
             t.update(self.sun.radiation,self.emissionTemp-273)
 
 
@@ -162,12 +172,6 @@ class World(QWidget):
         self.sun.update()
 
 
-        self.updateOptionsUI()
-
-        if self.threadRunning is True:
-            threading.Timer(self.tick_time,self.update).start()
-
-
     def draw(self, qp):
         size = self.size()
         incX = size.width()/self.SIZE_X
@@ -176,6 +180,7 @@ class World(QWidget):
 
         # let the tiles draw themselves
         self.worldLock.acquire()
+        self.updateOptionsUI()
         for i in range(self.SIZE_X):
             for j in range(self.SIZE_Y):
                 self.worldTiles[i][j].draw(qp,i*incX,j*incY,
