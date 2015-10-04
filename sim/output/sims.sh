@@ -1,11 +1,11 @@
 SIM_PATH="../DaisyWorld.py"
 SIM_DEFAULT_OPTIONS="-g"
 SIM_START_TEMP=-20
-SIM_STOP_TICK=10000
+SIM_STOP_TICK=1000
 SIM_DELTA_RAD=$(echo "2/$SIM_STOP_TICK" | bc -l)
 SIM_INITIAL_RAD=0.5
 
-AMOUNT_OF_RUNS=40
+AMOUNT_OF_RUNS=4
 MAX_THREADS_BACKGROUND=4
 
 OUTPUT_EXTENSION=".csv"
@@ -13,6 +13,7 @@ OUTPUT_EXTENSION=".csv"
 BASE_OUTPUT_NAME="default"
 
 function gen {
+    find . -name '$1-*$OUTPUT_EXTENSION' -delete
     r=1
     # base case, no invasive
     while [ $r -le $AMOUNT_OF_RUNS ]; do
@@ -34,5 +35,6 @@ function plot {
     octave --eval "plotOutput('$1')"
 }
 
-gen $BASE_OUTPUT_NAME
-plot $BASE_OUTPUT_NAME
+EPOCH=`date +%s`
+gen $BASE_OUTPUT_NAME"-"$EPOCH
+plot $BASE_OUTPUT_NAME"-"$EPOCH
