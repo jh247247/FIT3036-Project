@@ -118,13 +118,44 @@ class World(QWidget):
                         (0.5)) \
                         **(1/4)
 
+        # count the types of daisies at this tick
+        blankCount = 0
+        whiteCount = 0
+        blackCount = 0
+        whiteICount = 0
+        blackICount = 0
+        for t in self.linWorld:
+            if t.obj is None:
+                blankCount += 1
+            else:
+                if t.obj.albedo == DaisyFactory.whiteAttr[0] and \
+                   t.obj.optTemp == DaisyFactory.whiteAttr[1]:
+                    whiteCount += 1
+                if t.obj.albedo == DaisyFactory.blackAttr[0] and \
+                   t.obj.optTemp == DaisyFactory.blackAttr[1]:
+                    blackCount += 1
+                if t.obj.albedo == DaisyFactory.whiteIAttr[0] and \
+                   t.obj.optTemp == DaisyFactory.whiteIAttr[1]:
+                    whiteICount += 1
+                if t.obj.albedo == DaisyFactory.blackIAttr[0] and \
+                   t.obj.optTemp == DaisyFactory.blackIAttr[1]:
+                    blackICount += 1
+
+
 
         print(str(self.avgTemp) + " , " + \
               str(self.sun.radiation) + \
               " , "+ str(self.tick) \
               + " , " + str(1-self.avgAlbedo) \
-              + " , " + str(self.emissionTemp-273)
-              + " , " + str(self.expectedTemp-273))
+              + " , " + str(self.emissionTemp-273) \
+              + " , " + str(self.expectedTemp-273) \
+              + " , " + str(blankCount) \
+              + " , " + str(whiteCount) \
+              + " , " + str(blackCount) \
+              + " , " + str(whiteICount) \
+              + " , " + str(blackICount))
+
+
 
         self.tick += 1
         if self.stop_tick is not 0 and self.tick > self.stop_tick:
