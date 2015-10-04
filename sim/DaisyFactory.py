@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QWidget, QApplication
 from PyQt5.QtGui import QPainter, QColor, QFont, QImage
 from PyQt5.QtCore import *
 
-import random
+import random, sys
 from Daisy import Daisy
 
 world = None
@@ -11,10 +11,10 @@ world = None
 invasiveBlackEnabled = 0
 invasiveWhiteEnabled = 0
 
-whiteAttr = [0.75, 22.5, QImage("daisy-bn.png").scaled(20,20)]
-blackAttr = [0.25, 22.5, QImage("daisy-wn.png").scaled(20,20)]
-whiteIAttr = [0.25, 12.5, QImage("daisy-wi.png").scaled(20,20)]
-blackIAttr = [0.75, 32.5, QImage("daisy-bi.png").scaled(20,20)]
+whiteAttr = [0.75, 22.5, QImage(sys.path[0]+"/daisy-bn.png").scaled(20,20)]
+blackAttr = [0.25, 22.5, QImage(sys.path[0]+"/daisy-wn.png").scaled(20,20)]
+whiteIAttr = [0.25, 12.5, QImage(sys.path[0]+"/daisy-wi.png").scaled(20,20)]
+blackIAttr = [0.75, 32.5, QImage(sys.path[0]+"/daisy-bi.png").scaled(20,20)]
 
 # there should be a better way to do this, but this should be good
 # enough for now
@@ -30,7 +30,6 @@ maxTemp = 0
 def setWorld(w):
     global world
     world = w
-    print(whiteAttr)
 
 def setInvasiveBlack(state):
     global invasiveBlackEnabled
