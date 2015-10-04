@@ -11,8 +11,8 @@ world = None
 invasiveBlackEnabled = 0
 invasiveWhiteEnabled = 0
 
-whiteAttr = [0.75, 22.5, QImage("daisy-wn.png").scaled(20,20)]
-blackAttr = [0.25, 22.5, QImage("daisy-bn.png").scaled(20,20)]
+whiteAttr = [0.75, 22.5, QImage("daisy-bn.png").scaled(20,20)]
+blackAttr = [0.25, 22.5, QImage("daisy-wn.png").scaled(20,20)]
 whiteIAttr = [0.25, 12.5, QImage("daisy-wi.png").scaled(20,20)]
 blackIAttr = [0.75, 32.5, QImage("daisy-bi.png").scaled(20,20)]
 
