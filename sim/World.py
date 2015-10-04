@@ -172,7 +172,6 @@ class World(QWidget):
         incX = size.width()/self.SIZE_X
         incY = size.height()/self.SIZE_Y
 
-
         # let the tiles draw themselves
         self.worldLock.acquire()
         self.updateOptionsUI()
@@ -180,6 +179,7 @@ class World(QWidget):
             for j in range(self.SIZE_Y):
                 self.worldTiles[i][j].draw(qp,i*incX,j*incY,
                                            incX+1,incY+1)
+
         self.worldLock.release()
 
 

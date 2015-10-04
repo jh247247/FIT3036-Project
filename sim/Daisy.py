@@ -2,12 +2,13 @@ import random
 
 class Daisy:
     MAX_AGE = 30
-    def __init__(self, parentTile, albedo, optTemp):
+    def __init__(self, parentTile, albedo, optTemp, img):
         self.living = True
         self.albedo = albedo
         self.optTemp = optTemp
         self.parent = parentTile
         self.age = 0
+        self.img = img
 
     def update(self):
         """This should be called at every time interval"""

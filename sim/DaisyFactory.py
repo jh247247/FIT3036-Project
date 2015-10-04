@@ -1,4 +1,8 @@
 
+from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtGui import QPainter, QColor, QFont, QImage
+from PyQt5.QtCore import *
+
 import random
 from Daisy import Daisy
 
@@ -7,10 +11,10 @@ world = None
 invasiveBlackEnabled = 0
 invasiveWhiteEnabled = 0
 
-whiteAttr = [0.75, 22.5]
-blackAttr = [0.25, 22.5]
-whiteIAttr = [0.25, 12.5]
-blackIAttr = [0.75, 32.5]
+whiteAttr = [0.75, 22.5, QImage("daisy-wn.png").scaled(20,20)]
+blackAttr = [0.25, 22.5, QImage("daisy-bn.png").scaled(20,20)]
+whiteIAttr = [0.25, 12.5, QImage("daisy-wi.png").scaled(20,20)]
+blackIAttr = [0.75, 32.5, QImage("daisy-bi.png").scaled(20,20)]
 
 # there should be a better way to do this, but this should be good
 # enough for now
@@ -26,6 +30,7 @@ maxTemp = 0
 def setWorld(w):
     global world
     world = w
+    print(whiteAttr)
 
 def setInvasiveBlack(state):
     global invasiveBlackEnabled
@@ -51,15 +56,15 @@ def updateAttr():
     if invasiveWhiteEnabled is not 0:
         attrList.append(whiteIAttr)
 
-    minTemp = min([a[-1]-17.5 for a in attrList])
-    maxTemp = max([a[-1]+17.5 for a in attrList])
+    minTemp = min([a[1]-17.5 for a in attrList])
+    maxTemp = max([a[1]+17.5 for a in attrList])
 
 
 def setInvasiveBlackTemp(temp):
-    blackIAttr[-1] = temp
+    blackIAttr[1] = temp
 
 def setInvasiveWhiteTemp(temp):
-    whiteIAttr[-1] = temp
+    whiteIAttr[1] = temp
 
 def createDaisy(tile):
     global world
@@ -88,7 +93,8 @@ def createDaisy(tile):
             if random.random() > chance:
                 # spawn this type of daisy
                 return Daisy(t, t.obj.albedo,
-                             t.obj.optTemp)
+                             t.obj.optTemp,
+                             t.obj.img)
 
 
         else:
@@ -105,5 +111,6 @@ def createDaisy(tile):
                 if random.random() > chance:
                     # spawn random type of daisy
                     return Daisy(t,attrList[0][0],
-                                 attrList[0][1])
+                                 attrList[0][1],
+                                 attrList[0][2])
     return None
