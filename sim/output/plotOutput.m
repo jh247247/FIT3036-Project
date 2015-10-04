@@ -4,6 +4,7 @@ function plotOutput(prefix)
 
   default_csv = dir(strcat(prefix,'-*.csv'));
 
+  # load one to figure out
   temp = load(default_csv(1).name);
   default_data = zeros([size(temp) length(default_csv)]);
   default_data(:,:,1) = load(default_csv(1).name);

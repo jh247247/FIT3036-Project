@@ -23,10 +23,6 @@ class World(QWidget):
         self.sun = sun
         self.tick = 0
         self.stop_tick = args.stop_tick
-        if args.no_gui is True:
-            self.tick_time = 0
-        else:
-            self.tick_time = 0.001
 
         # calculate start temp from sun
         self.avgTemp = args.temp[0]
@@ -40,12 +36,11 @@ class World(QWidget):
         self.initOptionsUI()
         DaisyFactory.setWorld(self)
 
-
-        if args.iblack is not 0:
+        if args.iblack is not None:
             self.enableInvasiveBlack.setChecked(True)
             self.invasiveBlackTemp.setValue(args.iblack)
 
-        if args.iwhite is not 0:
+        if args.iwhite is not None:
             self.enableInvasiveWhite.setChecked(True)
             self.invasiveWhiteTemp.setValue(args.iwhite)
 
@@ -80,7 +75,8 @@ class World(QWidget):
 
     def resetWorld(self):
         self.worldLock.acquire()
-        self.worldTiles = [[Tile(self, World.START_TEMP, (x,y)) \
+        # remove magic
+        self.worldTiles = [[Tile(self, -24, (x,y)) \
                             for x in range(self.SIZE_X)] \
                            for y in range(self.SIZE_Y)]
         self.linWorld = list(itertools.chain(*self.worldTiles))

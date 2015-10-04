@@ -53,10 +53,10 @@ if __name__ == '__main__':
                         default=0,
                         help='Stop simulation at time tick S')
     parser.add_argument('-b', '--iblack' ,metavar='B', type=float, nargs='?',
-                        default=0,
+                        default=None,
                         help='Enable invasive black daisies with temp B')
     parser.add_argument('-w', '--iwhite',metavar='W', type=float, nargs='?',
-                        default=0,
+                        default=None,
                         help='Enable invasive white daisies with temp W')
     parser.add_argument('-r', '--radiation',metavar='R', type=float, nargs=1,
                         default=[1.0],
