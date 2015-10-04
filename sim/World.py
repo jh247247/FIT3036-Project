@@ -10,11 +10,10 @@ from Tile import Tile
 from Sun import Sun
 import DaisyFactory
 
-import yappi
 
 class World(QWidget):
-    SIZE_X = 35
-    SIZE_Y = 35
+    SIZE_X = 50
+    SIZE_Y = 50
     START_TEMP = 22.5
     BOLTZMANN_CONSTANT = 5.670373e-8
     SUN_WATTMETER_PER_UNIT = 3458.62
@@ -34,12 +33,9 @@ class World(QWidget):
         self.avgAlbedo = 0
 
         # init temp from given val
-        self.worldTiles = [[Tile(self, args.temp[0], (x,y)) \
-                            for x in range(self.SIZE_X)] \
-                           for y in range(self.SIZE_Y)]
-
-        self.linWorld = list(itertools.chain(*self.worldTiles))
         self.worldLock = threading.Lock()
+        self.resetWorld()
+
 
         self.initOptionsUI()
         DaisyFactory.setWorld(self)
@@ -57,7 +53,6 @@ class World(QWidget):
 
         self.threadRunning = True
 
-        yappi.start()
         threading.Thread(target=self.updateLoop).start()
 
 
@@ -88,6 +83,7 @@ class World(QWidget):
         self.worldTiles = [[Tile(self, World.START_TEMP, (x,y)) \
                             for x in range(self.SIZE_X)] \
                            for y in range(self.SIZE_Y)]
+        self.linWorld = list(itertools.chain(*self.worldTiles))
         self.worldLock.release()
 
         self.tick = 0
@@ -137,10 +133,9 @@ class World(QWidget):
         self.tick += 1
         if self.stop_tick is not 0 and self.tick > self.stop_tick:
             self.threadRunning = False
-            yappi.get_func_stats().print_all()
             quit() # could be more elegant..
 
-        #random.shuffle(self.linWorld)
+        random.shuffle(self.linWorld)
         for t in self.linWorld:
             t.update(self.sun.radiation,self.emissionTemp-273)
 

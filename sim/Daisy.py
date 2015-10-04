@@ -12,6 +12,7 @@ class Daisy:
         # TODO: Growth dependent on tile incident radiation
         # TODO: Death dependent on age and temp at tile
         # TODO: death dependent on things other than age...
-        chance = 0.0032625*(self.optTemp - self.parent.temp)**2
-        if chance > 1 or chance > random.random():
-           self.living = False
+        chance = 1-0.0032625*((self.optTemp - self.parent.temp)**2)
+        val = random.random()
+        if val > chance:
+            self.living = False

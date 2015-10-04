@@ -51,8 +51,8 @@ def updateAttr():
     if invasiveWhiteEnabled is not 0:
         attrList.append(whiteIAttr)
 
-    minTemp = min([a[-1]-17 for a in attrList])
-    maxTemp = max([a[-1]+17 for a in attrList])
+    minTemp = min([a[-1]-17.5 for a in attrList])
+    maxTemp = max([a[-1]+17.5 for a in attrList])
 
 
 def setInvasiveBlackTemp(temp):

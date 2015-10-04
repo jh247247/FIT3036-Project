@@ -10,7 +10,7 @@ import DaisyFactory
 
 class Tile:
     BARE_ALBEDO = 0.5
-    HEAT_TRANSFER = 0.005
+    HEAT_TRANSFER = 0.01
     def __init__(self, parentWorld, temp, coords):
         self.parent = parentWorld
         self.obj = None
@@ -26,8 +26,7 @@ class Tile:
                 self.obj = None
                 # else, the tile is unoccupied, attempt to spawn?
         else:
-            self.spawn()
-
+            self.obj = DaisyFactory.createDaisy(self)
 
         # update temp
         # TODO: fix fudge factor.
@@ -42,8 +41,6 @@ class Tile:
                      **(1/4)
         self.temp += self.HEAT_TRANSFER*((finalTemp-273)-self.temp)
 
-    def spawn(self):
-        self.obj = DaisyFactory.createDaisy(self)
 
     def draw(self, qp, x, y, w, h):
         # TODO: change this so it sets color, not albedo
