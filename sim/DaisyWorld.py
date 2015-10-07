@@ -64,12 +64,12 @@ if __name__ == '__main__':
     parser.add_argument('-d', '--delta',metavar='D', type=float, nargs=1,
                         default=[0.0],
                         help='Set radiation change per tick D')
-
+    parser.add_argument('-rs', '--rand-seed', metavar='RS', type=float,
+                        help='Seed random number')
 
 
     args = parser.parse_args()
-
-    random.seed()
+    random.seed(args.rand_seed )
 
     app = QApplication(sys.argv)
 
