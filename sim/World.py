@@ -1,5 +1,6 @@
 import sys, random
 import threading
+import itertools
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -9,9 +10,10 @@ from Tile import Tile
 from Sun import Sun
 import DaisyFactory
 
+
 class World(QWidget):
-    SIZE_X = 35
-    SIZE_Y = 35
+    SIZE_X = 50
+    SIZE_Y = 50
     START_TEMP = 22.5
     BOLTZMANN_CONSTANT = 5.670373e-8
     SUN_WATTMETER_PER_UNIT = 3458.62
@@ -21,35 +23,33 @@ class World(QWidget):
         self.sun = sun
         self.tick = 0
         self.stop_tick = args.stop_tick
-        if args.no_gui is True:
-            self.tick_time = 0
-        else:
-            self.tick_time = 0.001
 
         # calculate start temp from sun
         self.avgTemp = args.temp[0]
         self.avgAlbedo = 0
 
         # init temp from given val
-        self.worldTiles = [[Tile(self, args.temp[0], (x,y)) \
-                            for x in range(self.SIZE_X)] \
-                           for y in range(self.SIZE_Y)]
         self.worldLock = threading.Lock()
+        self.resetWorld()
+
 
         self.initOptionsUI()
         DaisyFactory.setWorld(self)
 
-        if args.iblack is not 0:
+        if args.iblack is not None:
             self.enableInvasiveBlack.setChecked(True)
             self.invasiveBlackTemp.setValue(args.iblack)
 
-        if args.iwhite is not 0:
+        if args.iwhite is not None:
             self.enableInvasiveWhite.setChecked(True)
             self.invasiveWhiteTemp.setValue(args.iwhite)
 
+        DaisyFactory.updateAttr()
+
         self.threadRunning = True
 
-        self.update()
+        threading.Thread(target=self.updateLoop).start()
+
 
     def closeEvent(self, event):
         self.threadRunning = False
@@ -75,16 +75,23 @@ class World(QWidget):
 
     def resetWorld(self):
         self.worldLock.acquire()
-        self.worldTiles = [[Tile(self, World.START_TEMP, (x,y)) \
+        # remove magic
+        self.worldTiles = [[Tile(self, -24, (x,y)) \
                             for x in range(self.SIZE_X)] \
                            for y in range(self.SIZE_Y)]
+        self.linWorld = list(itertools.chain(*self.worldTiles))
         self.worldLock.release()
 
         self.tick = 0
 
 
     def updateOptionsUI(self):
-        self.avgTempLabel.setText("Average temp: " + str(round(self.avgTemp,4)))
+        self.avgTempLabel.setText("Average temp: " +
+                                  str(round(self.avgTemp,4)))
+
+    def updateLoop(self):
+        while True:
+            self.update()
 
     def update(self):
         self.worldLock.acquire()
@@ -95,10 +102,9 @@ class World(QWidget):
         for i in range(self.SIZE_X):
             for j in range(self.SIZE_Y):
                 self.avgTemp += self.worldTiles[i][j].temp
-                self.avgAlbedo += self.worldTiles[i][j].getAlbedo()
+                self.avgAlbedo += self.worldTiles[i][j].albedo
         self.avgTemp /= self.SIZE_X*self.SIZE_Y
         self.avgAlbedo /= self.SIZE_X*self.SIZE_Y
-        print(str(1-self.avgAlbedo))
 
         # calculate emission temp of world (i.e: temp of world if
         # daisies do not die and left to stabilize at current radiation)
@@ -112,28 +118,53 @@ class World(QWidget):
                         (0.5)) \
                         **(1/4)
 
+        # count the types of daisies at this tick
+        blankCount = 0
+        whiteCount = 0
+        blackCount = 0
+        whiteICount = 0
+        blackICount = 0
+        for t in self.linWorld:
+            if t.obj is None:
+                blankCount += 1
+            else:
+                if t.obj.albedo == DaisyFactory.whiteAttr[0] and \
+                   t.obj.optTemp == DaisyFactory.whiteAttr[1]:
+                    whiteCount += 1
+                if t.obj.albedo == DaisyFactory.blackAttr[0] and \
+                   t.obj.optTemp == DaisyFactory.blackAttr[1]:
+                    blackCount += 1
+                if t.obj.albedo == DaisyFactory.whiteIAttr[0] and \
+                   t.obj.optTemp == DaisyFactory.whiteIAttr[1]:
+                    whiteICount += 1
+                if t.obj.albedo == DaisyFactory.blackIAttr[0] and \
+                   t.obj.optTemp == DaisyFactory.blackIAttr[1]:
+                    blackICount += 1
+
+
 
         print(str(self.avgTemp) + " , " + \
               str(self.sun.radiation) + \
               " , "+ str(self.tick) \
               + " , " + str(1-self.avgAlbedo) \
-              + " , " + str(self.emissionTemp-273)
-              + " , " + str(self.expectedTemp-273))
+              + " , " + str(self.emissionTemp-273) \
+              + " , " + str(self.expectedTemp-273) \
+              + " , " + str(blankCount) \
+              + " , " + str(whiteCount) \
+              + " , " + str(blackCount) \
+              + " , " + str(whiteICount) \
+              + " , " + str(blackICount))
+
+
 
         self.tick += 1
         if self.stop_tick is not 0 and self.tick > self.stop_tick:
             self.threadRunning = False
             quit() # could be more elegant..
 
-        tempTileArr = []
-
-        # let the tiles update their temps
-        for i in range(self.SIZE_X):
-            tempTileArr.extend(self.worldTiles[i])
-
-        random.shuffle(tempTileArr)
-        for t in tempTileArr:
-            t.update(self.sun.radiation)
+        random.shuffle(self.linWorld)
+        for t in self.linWorld:
+            t.update(self.sun.radiation,self.emissionTemp-273)
 
 
         deltaTempTiles = [[0 for x in range(self.SIZE_X)] \
@@ -163,24 +194,19 @@ class World(QWidget):
         self.sun.update()
 
 
-        self.updateOptionsUI()
-
-        if self.threadRunning is True:
-            threading.Timer(self.tick_time,self.update).start()
-
-
     def draw(self, qp):
         size = self.size()
         incX = size.width()/self.SIZE_X
         incY = size.height()/self.SIZE_Y
 
-
         # let the tiles draw themselves
         self.worldLock.acquire()
+        self.updateOptionsUI()
         for i in range(self.SIZE_X):
             for j in range(self.SIZE_Y):
                 self.worldTiles[i][j].draw(qp,i*incX,j*incY,
                                            incX+1,incY+1)
+
         self.worldLock.release()
 
 

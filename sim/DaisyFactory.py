@@ -1,5 +1,9 @@
 
-import random
+from PyQt5.QtWidgets import QWidget, QApplication
+from PyQt5.QtGui import QPainter, QColor, QFont, QImage
+from PyQt5.QtCore import *
+
+import random, sys
 from Daisy import Daisy
 
 world = None
@@ -7,10 +11,10 @@ world = None
 invasiveBlackEnabled = 0
 invasiveWhiteEnabled = 0
 
-whiteAttr = [0.75, 22.5]
-blackAttr = [0.25, 22.5]
-whiteIAttr = [0.25, 12.5]
-blackIAttr = [0.75, 32.5]
+whiteAttr = [0.75, 22.5, QImage(sys.path[0]+"/daisy-bn.png").scaled(20,20)]
+blackAttr = [0.25, 22.5, QImage(sys.path[0]+"/daisy-wn.png").scaled(20,20)]
+whiteIAttr = [0.25, 12.5, QImage(sys.path[0]+"/daisy-wi.png").scaled(20,20)]
+blackIAttr = [0.75, 32.5, QImage(sys.path[0]+"/daisy-bi.png").scaled(20,20)]
 
 # there should be a better way to do this, but this should be good
 # enough for now
@@ -18,6 +22,9 @@ attrList = [whiteAttr, blackAttr]
 
 chanceDistr = 1/17
 blankTileChance = 0.05
+
+minTemp = 0
+maxTemp = 0
 
 # This feels bad...
 def setWorld(w):
@@ -38,6 +45,8 @@ def updateAttr():
     global invasiveBlackEnabled
     global invasiveWhiteEnabled
     global attrList
+    global minTemp
+    global maxTemp
     attrList = [whiteAttr, blackAttr]
 
     if invasiveBlackEnabled is not 0:
@@ -46,29 +55,32 @@ def updateAttr():
     if invasiveWhiteEnabled is not 0:
         attrList.append(whiteIAttr)
 
+    minTemp = min([a[1]-17.5 for a in attrList])
+    maxTemp = max([a[1]+17.5 for a in attrList])
 
 
 def setInvasiveBlackTemp(temp):
-    blackIAttr[-1] = temp
+    blackIAttr[1] = temp
 
 def setInvasiveWhiteTemp(temp):
-    whiteIAttr[-1] = temp
+    whiteIAttr[1] = temp
 
 def createDaisy(tile):
     global world
-    if world is None:
+    global minTemp
+    global maxTemp
+    # either no world yet or cannot even hope to spawn new daisies here.
+    if world is None or tile.temp < minTemp or tile.temp > maxTemp:
         return None
 
     # figure out what daisy to spawn, return it.
     # if by chance no daisy spawns, return None
 
     # get adjacent tiles
-    adj = []
-    for x in range(-1,2):
-        for y in range(-1,2):
-            if(x != y and y != 0):
-                    adj.append(world.getTile((tile.coords[0]+x,
-                                             tile.coords[1]+y)))
+    adj = [world.getTile((tile.coords[0]+x, tile.coords[1]+y))
+           for x in range(-1,2)
+           for y in range(-1,2)
+           if (x != y and y != 0)]
 
     # shuffle list so no bias
     random.shuffle(adj)
@@ -76,11 +88,12 @@ def createDaisy(tile):
     # try spawning off each tile
     for t in adj:
         if(t.obj is not None):
-            if random.random() < 1-chanceDistr*abs(t.temp -
-                                                   t.obj.optTemp):
+            chance = 0.0032625*(t.obj.optTemp - tile.temp)**2
+            if random.random() > chance:
                 # spawn this type of daisy
                 return Daisy(t, t.obj.albedo,
-                             t.obj.optTemp)
+                             t.obj.optTemp,
+                             t.obj.img)
 
 
         else:
@@ -92,11 +105,11 @@ def createDaisy(tile):
                 # yes, I know shuffle is done in place. Doesn't
                 # matter for this application
                 random.shuffle(attrList)
+                chance = 0.0032625*(attrList[0][1] - tile.temp)**2
                 # attempt to spawn daisy based on difference in temp.
-                if random.random() < 1-chanceDistr*abs(tile.temp -
-                                                       attrList[0][-1]):
-
+                if random.random() > chance:
                     # spawn random type of daisy
                     return Daisy(t,attrList[0][0],
-                                 attrList[0][1])
+                                 attrList[0][1],
+                                 attrList[0][2])
     return None
