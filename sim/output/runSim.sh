@@ -2,13 +2,16 @@
 normal_name = 'normal';
 invasive_opt = '-b';
 script = fullfile(pwd,'sims.sh');
+minRuns = 10
 
 runsims = @(iter, temp, opt) system([script ' ' iter ' ' temp ' ' opt]);
 
 # run normal first...
 
-runsims('0',normal_name,'')
-runsims('4',normal_name,'')
-runsims('8',normal_name,'')
-runsims('12',normal_name,'')
+run = 0
+
+while(confidence(normal_name) || run < minRuns)
+     runsims(num2str(run),normal_name,'')
+done
+
 plotOutput(normal_name,inf);
