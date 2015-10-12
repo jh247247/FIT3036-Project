@@ -1,4 +1,4 @@
-function plotOutput(prefix)
+function plotOutput(prefix,amount)
 
   graphics_toolkit gnuplot;
 
@@ -9,7 +9,7 @@ function plotOutput(prefix)
   default_data = zeros([size(temp) length(default_csv)]);
   default_data(:,:,1) = load(default_csv(1).name);
 
-  for i = 2:length(default_csv)
+  for i = 2:min(length(default_csv),amount)
     default_data(:,:,i) = load(default_csv(i).name);
   end
 
