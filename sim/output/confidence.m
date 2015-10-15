@@ -27,12 +27,7 @@ function con = confidence(prefix,maxDataSet)
   se = s/sqrt(length(m));
   ts = tinv([0.025  0.975],length(m)-1); # t score
 			    # calculate minimum confidence of column 1
-  r = m + ts.*se;
+  con = m + ts.*se;
 
-  # check if data is in range
-  con = default_data(:,1,:) > r(:,1) & default_data(:,1,:) < r(:,2);
-
-  # get maximum of 2d truth table
-  con = max(max(con));
 
 endfunction

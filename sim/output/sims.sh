@@ -3,7 +3,7 @@
 SIM_PATH="../DaisyWorld.py"
 SIM_DEFAULT_OPTIONS="-g"
 SIM_START_TEMP=-24
-SIM_STOP_TICK=100000
+SIM_STOP_TICK=100
 SIM_DELTA_RAD=$(echo "2/$SIM_STOP_TICK" | bc -l)
 SIM_INITIAL_RAD=0.5
 
@@ -23,7 +23,6 @@ while [ $r -le $max ]; do
     # check if 3rd arg is set, then invasive enabled...
     if [ ! -z "$3" ]; then
 	opt=$3" "$2
-	echo opt
     fi
 
     # if file doesn't exist, create it
