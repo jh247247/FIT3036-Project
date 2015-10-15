@@ -3,10 +3,11 @@ normal_name = 'normal';
 invasive_opt = '-b';
 script = fullfile(pwd,'sims.sh');
 minRuns = 10
+maxRuns = 30
 
 runsims = @(iter, temp, opt) system([script ' ' iter ' ' temp ' ' opt]);
 
-# run normal first...
+
 
 run = 0
 
