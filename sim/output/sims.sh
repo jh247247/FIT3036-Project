@@ -3,7 +3,7 @@
 SIM_PATH="../DaisyWorld.py"
 SIM_DEFAULT_OPTIONS="-g"
 SIM_START_TEMP=-24
-SIM_STOP_TICK=100
+SIM_STOP_TICK=100000
 SIM_DELTA_RAD=$(echo "2/$SIM_STOP_TICK" | bc -l)
 SIM_INITIAL_RAD=0.5
 
@@ -13,6 +13,12 @@ MAX_THREADS_BACKGROUND=4
 OUTPUT_EXTENSION=".csv"
 
 r=$1
+
+# TODO: FIX
+#shortcut: quit when file already exists
+#if [ -f $2"-"$r$OUTPUT_EXTENSION ]; then
+#    exit 0
+#fi
 
 max=$(expr $r + $MAX_THREADS_BACKGROUND - 1)
 
@@ -31,6 +37,8 @@ while [ $r -le $max ]; do
                 -t $SIM_START_TEMP -r $SIM_INITIAL_RAD \
                 -d $SIM_DELTA_RAD -rs $r $opt \
                 > $fname &
+    else
+	exit 0
     fi
     ((r++))
 done
