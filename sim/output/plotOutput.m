@@ -20,6 +20,9 @@ function plotOutput(prefix,amount)
   for i = 1:length(default_csv)
     plot(default_data(:,2,i),default_data(:,1,i), 'Color', col(i,:))
   end
+  title(strcat(prefix,' ',num2str(amount)))
+  xlabel('Solar Luminosity')
+  ylabel('Temperature (C)')
   print(fig, strcat(prefix,'.png'),'-dpng')
 
   close all
@@ -28,6 +31,9 @@ function plotOutput(prefix,amount)
   fig = figure('Visible','off')
   plot(defaultAvg(:,2), defaultAvg(:,1),'.k')
   hold on
+  title(strcat(prefix,' ',num2str(amount)))
+  xlabel('Solar Luminosity')
+  ylabel('Temperature (C)')
   plot(defaultAvg(:,2), defaultAvg(:,5),'r')
   plot(defaultAvg(:,2), defaultAvg(:,6),'g')
   print(fig, strcat(prefix,'-avg.png'),'-dpng')

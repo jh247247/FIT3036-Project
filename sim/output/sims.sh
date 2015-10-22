@@ -14,6 +14,12 @@ OUTPUT_EXTENSION=".csv"
 
 r=$1
 
+# TODO: FIX
+#shortcut: quit when file already exists
+#if [ -f $2"-"$r$OUTPUT_EXTENSION ]; then
+#    exit 0
+#fi
+
 max=$(expr $r + $MAX_THREADS_BACKGROUND - 1)
 
 while [ $r -le $max ]; do
@@ -23,7 +29,6 @@ while [ $r -le $max ]; do
     # check if 3rd arg is set, then invasive enabled...
     if [ ! -z "$3" ]; then
 	opt=$3" "$2
-	echo opt
     fi
 
     # if file doesn't exist, create it
@@ -32,6 +37,8 @@ while [ $r -le $max ]; do
                 -t $SIM_START_TEMP -r $SIM_INITIAL_RAD \
                 -d $SIM_DELTA_RAD -rs $r $opt \
                 > $fname &
+    else
+	exit 0
     fi
     ((r++))
 done
