@@ -25,6 +25,7 @@
 \usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{subfig}
+\usepackage{float}
 
 % The preamble here sets up a lot of new/revised commands and
 % environments.  It's annoying, but please do *not* try to strip these
@@ -441,13 +442,86 @@ On the right is the global amount of each type of daisies.
 \item Red is the amount of invasive black daisies
 \end{itemize}
 
-\begin{figure}[ht]
+\begin{figure}[H]
   \centering
-  \subfloat{\includegraphics[width=0.4\textwidth]{../sim/output/normal}\label{fig:f1}}
+  \subfloat{\includegraphics[width=0.4\textwidth]{../sim/output/normal}}
   \hfill
-  \subfloat{\includegraphics[width=0.4\textwidth]{../sim/output/normal-avg}\label{fig:f2}}
+  \subfloat{\includegraphics[width=0.4\textwidth]{../sim/output/normal-avg}}
   \caption{Normal simulation}
 \end{figure}
+
+\begin{figure}[H]
+  \centering
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/22.5}}}}
+  \hfill
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/22.5-avg}}}}
+  \caption{Simulation with invasive blacks at 22.5 degrees}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/22.5}}}}
+  \hfill
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/22.5-avg}}}}
+  \caption{Simulation with invasive blacks at 22.5 degrees}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/27.5}}}}
+  \hfill
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/27.5-avg}}}}
+  \caption{Simulation with invasive blacks at 27.5 degrees}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/32.5}}}}
+  \hfill
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/32.5-avg}}}}
+  \caption{Simulation with invasive blacks at 32.5 degrees}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/37.5}}}}
+  \hfill
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/37.5-avg}}}}
+  \caption{Simulation with invasive blacks at 37.5 degrees}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/42.5}}}}
+  \hfill
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/42.5-avg}}}}
+  \caption{Simulation with invasive blacks at 42.5 degrees}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/47.5}}}}
+  \hfill
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/47.5-avg}}}}
+  \caption{Simulation with invasive blacks at 47.5 degrees}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/52.5}}}}
+  \hfill
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/52.5-avg}}}}
+  \caption{Simulation with invasive blacks at 52.5 degrees}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/57.5}}}}
+  \hfill
+  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/57.5-avg}}}}
+  \caption{Simulation with invasive blacks at 57.5 degrees}
+\end{figure}
+
 
 % TODO: Describe collection of results
 %  - Make sure that amount of runs is shown under each diagram
