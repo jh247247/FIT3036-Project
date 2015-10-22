@@ -115,7 +115,6 @@ ABSTRACT GOES HERE TODO
 % suppress numbering.
 
 \section{Introduction}
-
 A healthy ecosystem exhibits homeostatic properties\cite{morgan2001}
 that maintain an environment hospitable to the native species,
 allowing for a stable system in situations where life may not normally
@@ -136,23 +135,78 @@ system can exhibit complex behaviour through their interactions.
 In the original specification of Daisyworld, there are only
 two kinds of daisies, black and white. These two daisies flourish at
 the same temperature, only differing by the amount of incident
-radiation that they absorb. It is this difference that causes the
-system to maintain homeostasis, too warm and more white daisies grow,
-causing the system to cool and vice-versa. The proposed change would
-be a new type of daisy that is identical to the ``black'' variation,
-besides growing in a warmer than normal climate.
+radiation that they absorb. It is this difference in albedo that
+causes either type of daisy to warm or cool it's local environment. As
+the local temperature strays from the optimal growing temperature of the
+daisies, the chance of that daisy dying increases. Hence daisies that
+cause the temperature to deviate from their optimal temperature die more
+often, causing the global temperature to converge to the daisies
+growing temperature.
+
+This paper tests the introduction of a third type of daisy with the
+same albedo as the ``black'' variant of daisy, but with a higher
+optimal temperature. It can therefore warm up it's environment and
+overtake the two native species in certain conditions, much like an
+invasive species in real life.
 
 TODO: describe what happens?
 
-TODO: structure of the document
+TODO: better structure of the document
+
+This paper is split up into the following sections, each discussing
+different parts of the aforementioned system.
+
+\begin{itemize}
+\item Method
+\item Results
+\item Analysis and discussion
+\item Future work
+\item Conclusion
+\end{itemize}
 
 \section{Method}
-The model implemented for this paper is a modified version of
-daisyworld, set on a 2d grid. Each edge connects to the edge opposite,
-making  a torus if it were to be modeled in 3d space. This grid is
-occupied by the already introduced daisies, which absorb and reflect
-different amounts of incident light energy, hence modifying their
-local temperature.
+This agent based model of daisyworld is implemented on a two
+dimensional grid, with opposing sides connected to one another (the
+surface of a torus in 3d space). This grid is split up into tiles,
+that may or may not contain a daisy. Each tile modifies it's local
+temperature at each time step based on the albedo of the object at
+it's location and the current incident radiation. This incident
+radiation is controlled by a sun object that updates the solar
+luminosity at each time step.
+
+{\bf TODO:} figure of the program update flow?
+
+\subsection{World}
+The world is implemented in a two dimensional grid, with opposing
+sides connected to one another. At each time step the following is
+calculated:
+\begin{itemize}
+\item The average temperature
+\item The average albedo
+\item The expected temperature from the average albedo
+  (TODO Stefan)
+\item The expected temperature for a lifeless world
+\item The amount of each type of daisy
+\end{itemize}
+
+These numbers are written to a file for later processing
+
+Then, the following actions are completed:
+\begin{itemize}
+\item Allowing each tile to update it's attributes
+\item Temperature mixing between adjacent tiles
+\end{itemize}
+
+Temperature mixing is implemented by taking the average temperature of
+adjacent tiles and adding 20\% of the difference to the current tile
+(TODO REWORD)
+(TODO REDO?)
+
+\subsection{Tiles}
+\subsection{Daisies}
+\subsubsection{Invasive species}
+\subsection{Sun}
+
 
 TODO: Read ODD paper stuff
 
@@ -183,31 +237,31 @@ TODO: Read ODD paper stuff
 % # look up ODD model explanation stuff (overview down to details)
 % # run normal first...
 
-TODO: Describe agents
-  - What they contain
-  - What they know about their environment
-  - Spawning?
-  - Maths from daisyworld paper
-  - Update flow
+% TODO: Describe agents
+%   - What they contain
+%   - What they know about their environment
+%   - Spawning?
+%   - Maths from daisyworld paper
+%   - Update flow
 
-TODO: Describe system
-  - physical representation
-  - temperature diffusion
-  - Update flow
-  - Omit the nitty-gritty details, keep things abstract
+% TODO: Describe system
+%   - physical representation
+%   - temperature diffusion
+%   - Update flow
+%   - Omit the nitty-gritty details, keep things abstract
 
 \section{Results}
-TODO: Describe collection of results
- - Make sure that amount of runs is shown under each diagram
- - Show amount
- - consider plotting amount of runs vs temp
- - binary search for grabbing data?
+% TODO: Describe collection of results
+%  - Make sure that amount of runs is shown under each diagram
+%  - Show amount
+%  - consider plotting amount of runs vs temp
+%  - binary search for grabbing data?
 
 \section{Analysis \& Discussion}
 
 \section{Future work}
-TODO: Actually write about future work
- - Show the amount
+% TODO: Actually write about future work
+%  - Show the amount
 
 \section{Conclusion}
 TODO: How to conclude?
