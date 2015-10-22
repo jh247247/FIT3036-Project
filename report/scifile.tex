@@ -106,12 +106,13 @@
 
 \maketitle 
 
-{\bf \quad Keywords:} TODO
+{\bf \quad Keywords:} Climate change, Environmental stress, Invasive
+species, Habitate invasibility, Daisyworld
 
 % Place your abstract within the special {sciabstract} environment.
 
 \begin{sciabstract}
-ABSTRACT GOES HERE TODO
+
 \end{sciabstract}
 
 
@@ -160,10 +161,6 @@ same albedo as the ``black'' variant of daisy, but with a higher
 optimal temperature. It can therefore warm up it's environment and
 overtake the two native species in certain conditions, much like an
 invasive species in real life.
-
-TODO: describe what happens?
-
-TODO: better structure of the document
 
 This paper is split up into the following sections, each discussing
 different parts of the aforementioned system.
@@ -442,20 +439,14 @@ On the right is the global amount of each type of daisies.
 \item Red is the amount of invasive black daisies
 \end{itemize}
 
+Note due to brevity only plots every 5 degrees are included.
+
 \begin{figure}[H]
   \centering
   \subfloat{\includegraphics[width=0.4\textwidth]{../sim/output/normal}}
   \hfill
   \subfloat{\includegraphics[width=0.4\textwidth]{../sim/output/normal-avg}}
   \caption{Normal simulation}
-\end{figure}
-
-\begin{figure}[H]
-  \centering
-  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/22.5}}}}
-  \hfill
-  \subfloat{\includegraphics[width=0.4\textwidth]{{{../sim/output/22.5-avg}}}}
-  \caption{Simulation with invasive blacks at 22.5 degrees}
 \end{figure}
 
 \begin{figure}[H]
@@ -863,6 +854,55 @@ Alpert, P., Bone, E. and Holzapfel, C. (2000). Invasiveness, invasibility and th
 
 \end{thebibliography}
 
+\section{Appendix}
+\subsection{Testing}
+To ensure proper operation of the model, each component must operate
+correctly. Therefore testing must occur in order to establish that
+each small part operates according to established models (such as
+Watson's orginal Daisyworld\cite{watson1983}, as well as von-bloh's
+agent based model TODO CITE)
+
+In order to do this, a unit-testing scheme was used in order to test
+each individual component against it's expected output. Since larger
+components rely on smaller, subordinate, components of the program,
+the testing was done in a ``bottom up'' fashion, where small
+components were tested before the larger components they rely upon.
+
+Tests were implemented and tested to work in the following order:
+\begin{itemize}
+\item Sun
+  \begin{itemize}
+  \item Does it correctly return the current solar luminosity?
+  \item Does it correctly increment the solar luminosity at each time step?
+  \item Can the increment value be set by the user?
+  \end{itemize}
+\item Daisies
+  \begin{itemize}
+  \item Do the daisies correctly store the given optimal temperature?
+  \item Do the daisies correctly store the given albedo?
+  \end{itemize}
+\item Tiles
+  \begin{itemize}
+  \item Do the tiles correctly calculate the temperature change
+    given the solar luminosity and albedo at each time step?
+  \item Do The tiles spawn new daisies based on the growth rate at
+    each time step?
+  \item Do the tiles correctly kill daisies based on the temperature
+    dependent death rate at each time step?
+  \end{itemize}
+\item World
+  \begin{itemize}
+  \item Does the world calculate the average temperature?
+  \item Does the world calculate the average albedo?
+  \item Does the world calculate the expected average temperature
+    given it has calculated the average albedo?
+  \item Does the world calculate the lifeless world temperature?
+  \item Does the world correctly update every tile it contains?
+  \item Does the world count the amount of each type of daisy at every
+    tile it contains?
+  \item Does the world correctly mix the temperatures of adjacent tiles?
+  \end{itemize}
+\end{itemize}
 
 \end{document}
 

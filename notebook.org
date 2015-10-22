@@ -179,17 +179,23 @@
     :END:
     - a tutorial geological approach
 * <2015-09-01 Tue>
-  Made the text within the tile change color depending on the current temp.
-  Right now it is a rather naive method, might want to fix that later.
-** <2015-09-14 Mon>
-   Reworked the color temp to use the Hue from 0 to 255, I.e red to dark purple.
-   Now it looks fancier, a better heat map...
-
-* <2015-09-07 Mon>
   Moving on to implementing UI now, really quite easy since I chose QT as the framework.
   Not exactly the best architecture though, with each inner stage having to keep a
   reference to their parent in order to implement some stuff, like daisies having to
   know the temp of the tile they occupy. It works, so no need to change it now.
+
+  Made the text within the tile change color depending on the current temp.
+  Right now it is a rather naive method, might want to fix that
+  later.
+
+  I also plotted some sample data I generated, since the system
+  exhibits homeostasis at this point. Not very well mind you, but
+  still well enough to plot. Now I just need to tune up the system and
+  make it more "true" to the original paper before adding my modification.
+** <2015-09-14 Mon>
+   Reworked the color temp to use the Hue from 0 to 255, I.e red to dark purple.
+   Now it looks fancier, a better heat map...
+
 * <2015-09-11 Fri>
   I noticed that there was way too much oscillation to classify the simulation as "homeostatic",
   I.e the temperature would deviate up to 10 degrees from the "optimal temp" of 22.5 in a system
@@ -202,6 +208,36 @@
    - Have to figure out a way to make all the optional daisies die based on user input
      - Idea: When checking daisies, compare them against current available types of daisies,
        if they don't exist, kill them.
+** <2015-10-04 Sun> REDONE
+   This did not work as intended, so instead I have implemented it
+   "properly" as outlined in Watsons original paper, I.e an inverted
+   parabola with a peak at 1 at the "optimal growing
+   temperature". I wasn't satisfied at the constant death rate
+   however, and just made it 1-growth rate. My logic is that a
+   constant death rate does not lend itself to real life, because if a
+   daisy spawns somehow at a 100 degree tile, it has the same chance
+   of dying as one in an ideal environment. This does not make sense
+   to me, hence the change.
+
+* <2015-09-15 Tue>
+  Today I added command line arguments to my program for the later
+  scripting I will do. It has the basic parameters of this systems,
+  amount of timesteps, amount of change in solar luminosity per
+  timestep etc. Also another thing I should probably add is an option
+  to disable the GUI since that makes simulation about 30% faster,
+  which is important since it takes SUCH a long time to run.
+
+  I also made a bash script to wrap the command line options I made. It's
+  pretty "dumb" and doesn't do very much in terms of figuring out how
+  many runs to do so far. One thing it does do very well though is
+  multiprocessing the simulations, I managed to get it to
+  automagically determine the amount of processes to run based on the
+  amounttemperate the computer has. This means that my final runs will
+  have to be "batched" based on the amount of threads I run, but that
+  can be worked around.	The best thing about this is that (on my
+  computer anyway) the simulation essentially takes 1/4 of the time to
+  run if I run a whole bunch. Anyway, I'm just happy I have a wrapper
+  around the code so everything becomes much more simple to grab data.
 * <2015-09-22 Tue>
   Introduction
   - include agent-based models, how, why, references, examples.
@@ -211,5 +247,54 @@
     - Add examples of how they are used
 
   - STRUCTURE, include a paragraph that explains how the paper is laid out
-- equations, can use equation references from other papers
-- how are we going to use the simulation?
+  - equations, can use equation references from other papers
+  - how are we going to use the simulation?
+
+* <2015-10-07 Wed>
+  I have decided to (well more like finally got around to) implement a
+  script to automatically generate my data. Instead of sitting there
+  and finding out whether or not I should do more runs I can just use
+  matlab and have it determine how many runs to do. Alan said
+  yesterday that we should use the 95% confidence interval of the data
+  to determine if we are doing enough runs. Much smarter that what I
+  have currently, which is a blind 50-run simulation that I do
+  overnight.
+
+  There are a few problems though, what about the parts of the plot
+  where the planet is lifeless? Won't the 95% confidence interval
+  always overlap? I could just use the total amount of daisies to work
+  out if the planet is lifeless, but what about the parts where there
+  is some life, but not alot? I think the best way to go about this is
+  to omit points that the confidence interval is already very small,
+  this would correspond to sections where the simulation is very
+  similar, such as homeostasis (if it is very good) or the lifeless
+  sections.
+
+  So, flow:
+  1. If not done for parameter -> Generate run ELSE go to 5
+  2. Generate 95% confidence interval based on all runs for that parameter
+  3. Is difference between all points "very small"? YES -> done for parameter
+  4. Does confidence interval overlap adjacent runs? NO -> done for parameter
+  5. Go to next parameter
+
+
+  So, plan of action:
+  - Commandline options DONE
+  - Matlab code DONE
+  - Plot generation, hacky but DONE
+* <2015-10-11 Sun>
+  I finally realized that my heat model was incorrect, but only after
+  wondering why my lifeless world plot was linear instead of a high
+  power root like in the original daisyworld paper. Before I was using
+  a naive "newtons law of cooling" at each tile, with the ambient
+  temperature being the absolute zero of space and adding some
+  constant of the solar luminosity multiplied by the amount of energy
+  absorbed.
+
+  I have re-implemented it to use stefan's blackbody emission
+  temperature. At each timestep the expected temperature is calculated
+  based on the albedo of the tile (each tile is kind of like a
+  mini-world in this respect) and a small fraction is added to the
+  current temperature to warm or cool the tile. This means that
+  overall, the planet should converge to the value given by stefan's
+  blackbody emission for the average world albedo!
