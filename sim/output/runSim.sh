@@ -1,4 +1,4 @@
-run_temps = 22.5:1:50.5;
+run_temps = 22.5:1:60.5;
                                 # cell temp prefixes
 prefixes = [{'normal'}; strread(num2str(run_temps),'%s')];
 
