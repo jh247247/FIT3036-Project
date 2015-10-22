@@ -2,6 +2,14 @@
 
 \documentclass[12pt]{article}
 
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+            {-2.5ex\@plus -1ex \@minus -.25ex}%
+            {1.25ex \@plus .25ex}%
+            {\normalfont\normalsize\bfseries}}
+\makeatother
+\setcounter{secnumdepth}{4} % how many sectioning levels to assign numbers to
+
 % Users of the {thebibliography} environment or BibTeX should use the
 % scicite.sty package, downloadable from *Science* at
 % www.sciencemag.org/about/authors/prep/TeX_help/ .
@@ -14,6 +22,9 @@
 % following line.
 
 \usepackage{times}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{subfig}
 
 % The preamble here sets up a lot of new/revised commands and
 % environments.  It's annoying, but please do *not* try to strip these
@@ -173,84 +184,271 @@ temperature at each time step based on the albedo of the object at
 it's location and the current incident radiation. This incident
 radiation is controlled by a sun object that updates the solar
 luminosity at each time step.
+\begin{figure}[h!]
+  \centering
+  \includegraphics[scale=0.5]{worldUpdate.png}
+  \caption{World update program flow}
+  \label{fig:worldUpdate}
+\end{figure}
 
-{\bf TODO:} figure of the program update flow?
+\subsection{World} The world is implemented in a two dimensional grid,
+with opposing sides connected to one another. Each tile in this grid
+has it's own local temperature and object that lives at that
+location. It is this object that defines the albedo of the tile. At
+each iteration or timestep the following is calculated and written to
+file for later processing.
 
-\subsection{World}
-The world is implemented in a two dimensional grid, with opposing
-sides connected to one another. At each time step the following is
-calculated:
+\subsubsection{Average Temperature}
+This is calculated by the following equation for a world that has
+dimensions $m$ by $n$.
+\begin{align}
+  T_{av} &= \frac{1}{mn}\sum\limits_{i=1}^m\sum\limits_{j=1}^nT(i,j)
+\end{align}
+Where
+
+
+Where $T(i,j)$ is the temperature of the tile located at coordinates
+$(i,j)$.
+
+\subsubsection{Average Albedo}
+The following equation is used to calculate the average albedo of a
+world of dimensions $m$ by $n$.
+
+\begin{align}
+  A_{av} &= \frac{1}{mn}\sum\limits_{i=1}^m\sum\limits_{j=1}^nA(i,j)
+\end{align}
+
+Where $A(i,j)$ is the albedo of the tile located at coordinates
+$(i,j)$.
+
+\subsubsection{Expected temperature from average albedo}
+This is the expected temperature of the world, if the only updates to
+the system was to the temperature, the global average would eventually
+converge to this value.
+\begin{align}
+  T_{ex} &= \sqrt[4]{\frac{S\cdot L \cdot (1-A_{av})}{\sigma}} + 273
+\end{align}
+Where:
 \begin{itemize}
-\item The average temperature
-\item The average albedo
-\item The expected temperature from the average albedo
-  (TODO Stefan)
-\item The expected temperature for a lifeless world
-\item The amount of each type of daisy
+\item $S$ is a constant having units of flux
+\item $L$ is the luminosity of the worlds sun
+\item $\sigma$ is Stefan's constant
+\item $A_{av}$ is the average albedo from the previous section
 \end{itemize}
 
-These numbers are written to a file for later processing
+Note that this is equation {\bf (4)} in \cite{watson1983} reordered to
+make $T_e$ the subject.
 
-Then, the following actions are completed:
+\subsubsection{Expected temperature of a lifeless world}
+This is the expected temperature of the world at the current amount of
+incident radiation for a world where life does not exist. Since the
+albedo of bare ground is 0.5\cite{watson1983} this temperature can be
+defined by:
+\begin{align}
+  T_{nl} &= \sqrt[4]{\frac{S\cdot L  \cdot 0.5}{\sigma}} + 273
+\end{align}
+Where:
 \begin{itemize}
-\item Allowing each tile to update it's attributes
-\item Temperature mixing between adjacent tiles
+\item $S$ is a constant having units of flux
+\item $L$ is the luminosity of the worlds sun
+\item $\sigma$ is Stefan's constant
+\item $A_{av}$ is the average albedo from the previous section
 \end{itemize}
 
+Note that this is equation {\bf (4)} in \cite{watson1983} reordered to
+make $T_e$ the subject.
+
+
+\subsubsection{Amount of each type of daisy}
+The amount of each type of daisy is calculated by iterating over every
+tile and incrementing a type-specific counter, outlined in \emph{Figure} \ref{fig:tileCount}.
+\begin{figure}[h]
+  \centering
+  \includegraphics{tileCount.png}
+  \caption{Sequence diagram for counting tile types}
+  \label{fig:tileCount}
+\end{figure}
+
+\subsubsection{Tile update}
+After calculation of the world attributes, each tile is then allowed
+to update it's own attributes. Details into this process are in
+\emph{Section} \ref{Tiles}.
+
+\subsubsection{Temperature mixing}
 Temperature mixing is implemented by taking the average temperature of
-adjacent tiles and adding 20\% of the difference to the current tile
-(TODO REWORD)
-(TODO REDO?)
+adjacent tiles and adding 20\% of the difference to the current tile.
+Mathematically, this can be expressed as:
 
-\subsection{Tiles}
+\begin{align}
+  \Delta T &= \frac{1}{4}\left(T(i-1,j) + T(i+1,j) + T(i,j-1) + T(i,j+1) \right)
+\end{align}
+
+Where $T(i,j)$ is the temperature of the tile at coordinates
+$(i,j)$. This ``wraps around'' the grid, so $T(-1,-1)$ is equivalent
+to $T(M,N)$ for a $M$ by $N$ grid.
+
+\subsection{Tiles} \label{Tiles}
+Each tile has attributes consisting of temperature and albedo. The
+albedo is dependent on not only what type of daisy lives at that
+point, but whether or not there is a daisy at all. If no daisy exists
+at a timestep, the default albedo of bare ground (0.5) is used
+instead.
+\subsubsection{Updating}
+At each timestep each tile updates each of it's individual
+components. This comprised of the current local temperature, whether
+or not a daisy exists at the current tile and the type of that daisy.
+\paragraph{Temperature}
+For each tile, a portion of the difference between the ideal
+temperature of the tile (calculated via the \emph{Stefan-Boltzmann
+  law}) is added to the current temperature of the tile.
+
+Expressed formally:
+
+\begin{align}
+  \Delta T_{t+1} &= \alpha\cdot \sqrt[4]{\frac{S\cdot L \cdot
+      (1-A_t)}{\sigma}} + 273 - T_t
+\end{align}
+Where:
+\begin{itemize}
+\item $T_{t}$ is the temperature at the current timestep
+\item $T_{t}$ is the temperature at the next timestep
+\item $\sigma$ is Stefan's constant
+\item $S$ is a constant having units of flux
+\item $L$ is the luminosity of the worlds sun
+\item $A_t$ is the albedo of the tile at the current timestep
+\item $\alpha$ is a constant between 0 and 1 to indicate the amount of
+  difference to add to the $T_t$
+\end{itemize}
+
+For this model, $\alpha$ was chosen to be 0.01.
+
+\paragraph{Germination}
+The type of daisy to spawn is based on the daisies in adjacent tiles,
+diagonal exclusive. If no daisies exist an adjacent tile, it
+contributes a small chance for any type of daisy to grow.
+
+The chance to attempt to spawn a type of daisy can be expressed by:
+\begin{align}
+  S_t &= \frac{C_t+W\cdot C_b}{4}
+\end{align}
+Where:
+\begin{itemize}
+\item $S_t$ is the chance to attempt to spawn that type of daisy
+\item $C_t$ is the count of adjacent daisies of that type
+\item $C_b$ is the count of adjacent blank tiles
+\item $W$ is a constant defining blank tile contribution to any tile.
+\end{itemize}
+
+$W$ is defined as 0.05. This means that a tile surrounded by blank
+tiles has a 20\% chance to attempt to spawn any type of daisy.
+
+If a daisy does not successfully spawn, the next type is randomly
+chosen to spawn off (after exclusion of any previously attempted types).
+
 \subsection{Daisies}
+Daisies have two attributes, albedo and optimal growing
+temperature. These are static from life until death from the
+perspective of the daisy.
+
+
+\subsubsection{Albedo}
+The albedo is used to calculate the amount of energy reflected back
+from the surface of the tile. A value close to 0 corresponds to a large
+amount of energy being absorbed, while a value close to 1 indicates
+the opposite.
+
+White daisies correspond to an albedo of 0.75, while
+black correspond to an albedo of 0.25.
+
+
+\subsubsection{Optimal growing temperature}
+Optimal growing temperature is where the chance of spawning the
+selected daisy at a given tile is 1. Following the original Daisyworld
+model, this is defined as:
+
+\begin{align}
+  \beta &=
+  \begin{cases}
+    1 - 0.0003265(T_{opt} - T_t)^2 & -17.5+T_{opt}\leq T_t \leq 17.5+T_{opt}\\
+    0 & \mathrm{Otherwise}
+  \end{cases}
+\end{align}
+Where:
+\begin{itemize}
+\item $\beta$ is the spawn chance or growth rate
+\item $T_{opt}$ is the optimal growing temperature of the given type
+  of daisy.
+\item $T_t$ is the current temperature of the tile attempting to spawn
+  a daisy.
+\end{itemize}
+
+Note that the death rate ($\gamma$) of the daisies was modified to be
+$1-\beta$ from the original model. This reflects the agent-based
+implementation of this system, as a daisy located in a hostile
+environment will be more likely to die compared to one in a friendly
+environment.
+
+The ``native'' daisies given in the original daisyworld and mirrored
+here both have an optimal growing temperature of 22.5 degrees Celsius.
+
 \subsubsection{Invasive species}
+The modification introduced is a new type of black daisy with a
+different - higher - optimal growing temperature to ``native''
+daisies.
+
+This is an attempt to emulate a new species that modifies it's
+environment in a way that native species can no longer grow, hence
+barring the native species from growing in the same area.
+
+The general intention of this is if the invasive daisies out-compete
+the natives to a high enough degree, homeostasis will be broken and
+the ecosystem will collapse, much like real life ecosystems.
+
 \subsection{Sun}
-
-
-TODO: Read ODD paper stuff
-
-% # find parts that "look different" and make sure that the 95pc
-% # confident that they are different. If we don't find
-
-% # presentation stuff
-% # first slide: Title - make it memorable woo
-% # - name obv
-% # - contact info
-% # - visual stuff? make it interesting... urgh
-% # - question? big picture kinda stuff
-
-% # second slide:
-% # - background info (real world example?)
-% # - How does it relate?
-% # - another illustration
-% # third slide:
-% # - What you actually changed
-% # - screengrab/movie (movie preferable...)
-% # - description
-% # 4th slide:
-% # - results
-% # - plots/difference?
-
-% # remember to do testing docs D:
-% # test results in report, appendix?
-% # look up ODD model explanation stuff (overview down to details)
-% # run normal first...
-
-% TODO: Describe agents
-%   - What they contain
-%   - What they know about their environment
-%   - Spawning?
-%   - Maths from daisyworld paper
-%   - Update flow
-
-% TODO: Describe system
-%   - physical representation
-%   - temperature diffusion
-%   - Update flow
-%   - Omit the nitty-gritty details, keep things abstract
+The sun only has one attribute, the incident solar luminosity on the
+world. This is normalized so that if the luminosity is 1 and the world
+is lifeless, the average temperature should be 22.5 degrees Celsius.
 
 \section{Results}
+The simulation was run for 100000 timesteps, on a grid of 50 by 50
+tiles. Once each simulation was completed, 95\% confidence interval is
+calculated of all simulations so far of that type and is held against
+the following conditions:
+\begin{itemize}
+\item The confidence interval is less than 0.5 degrees
+\item The confidence interval does not overlap the confidence interval
+  of adjacent parameters unless it converges to less than 0.5 degrees.
+\item There has been a minimum of 10 simulations of that parameter
+\item There has been a maximum of 30 simulations of that parameter
+\end{itemize}
+
+Once all of these conditions are met for all simulations, plots are
+made and simulation stops.
+
+The parameter varied between runs was the optimal growing temperature
+of the invasive daisies, from 22.5 to 60.5 in 1 degree steps.
+
+On the left is the global temperature vs solar luminosity.
+Blue is the average global temperature with error bars indicating the
+95\% confidence interval. Red is the expected temperature for a
+lifeless planet.
+
+On the right is the global amount of each type of daisies.
+\begin{itemize}
+\item Blue is the amount of blank tiles
+\item Black is the amount of black daisies
+\item Green is the amount of white daisies
+\item Red is the amount of invasive black daisies
+\end{itemize}
+
+\begin{figure}[ht]
+  \centering
+  \subfloat{\includegraphics[width=0.4\textwidth]{../sim/output/normal}\label{fig:f1}}
+  \hfill
+  \subfloat{\includegraphics[width=0.4\textwidth]{../sim/output/normal-avg}\label{fig:f2}}
+  \caption{Normal simulation}
+\end{figure}
+
 % TODO: Describe collection of results
 %  - Make sure that amount of runs is shown under each diagram
 %  - Show amount
@@ -258,13 +456,78 @@ TODO: Read ODD paper stuff
 %  - binary search for grabbing data?
 
 \section{Analysis \& Discussion}
+There seem to be three behaviours of the system with these parameters:
+\begin{itemize}
+\item Maintained homeostasis
+\item Immediate homeostasis breakdown
+\item Held-off homeostasis breakdown
+\end{itemize}
+
+These are explored in the following sections.
+
+\subsection{Maintained homeostasis}
+When the introduced species is extremely similar, or extremely
+dissimilar, to the native species, homeostasis is maintained. This
+could be the result of either of two cases:
+\subsubsection{Extreme similarity}
+The similarity between the introduced species and the natives means
+that all species are attempting to keep their environment at the same
+temperature (or close enough to maintain homeostasis). This can be
+seen in graphs with optimal growing temperature of 22.5 to 25.5
+degrees Celsius.
+
+\subsubsection{Extreme dissimilarity}
+The dissimilarity between the native species and the introduced means
+that the new species never actually gets to grow at any stage when the
+system is in homeostasis. The parameters that exhibit this behaviour
+is 54.5 degrees Celsius and upwards.
+
+Some analysis of the optimal growing temperature and it's range fully
+explains this behaviour. Since the native daisies can only grow in the
+range of $22.5 \pm 17.5$ degrees, the upper temperature limit of 40
+degrees is very much below the 54.5 degrees where this behaviour starts.
+\subsection{Immediate homeostasis breakdown}
+This is seen in optimal growing temperatures 26.5 to 31.5 degrees
+Celsius. An explanation of this is that when the system first attempts
+to establish homeostasis the invasive daisies take over immediately
+and quickly make the environment too hot for the natives.
+
+The initial establishment of homeostasis is not a valid state of an
+ecosystem on earth in current times, hence this region is a candidate
+for further exploration, although it may be very similar to the next Sexton.
+
+\subsection{Held-off homeostasis breakdown}
+This is a very interesting region, occurring in the temperature range
+of 32.5 to 53.5 degrees Celsius. Homeostasis is established, but as
+the sun grows hotter and forces the system to adapt, the invasive
+species takes hold and breaks homeostasis.
+
+This mirrors ecosystems on earth, where an environment that would
+normally be able to fend off an invasive species cannot due to
+external stresses\cite{albert2000}.
 
 \section{Future work}
-% TODO: Actually write about future work
-%  - Show the amount
+A more in depth exploration of the three regions (especially the
+``Held-off homeostasis breakdown'' and the ``Immediate Homeostasis
+breakdown'') regions. Specifically:
+\begin{itemize}
+\item What conditions are required for the invasive species to take hold
+\item Why does the system sometimes not collapse for the same
+  parameters, what is the difference?
+\item How does the invasive species actually take hold?
+\item How much of the world is required to be invasive species before
+  homeostasis breaks down?
+\item What would the difference be for a invasive species that cools a
+  warming daisyworld as opposed to warming it?
+\end{itemize}
 
 \section{Conclusion}
-TODO: How to conclude?
+A healthy ecosystem that may normally be able to
+withstand an invasive species can succumb when put under excessive
+stress, such as climate change. This simulation exhibits behaviour
+similar to ecosystem breakdown in these conditions. Hence it may be
+an effective tool in the future exploration of the effects of ecosystem
+collapse due to the introduction of invasive species.
 
 
 % \section{Formatting Citations}
@@ -520,6 +783,9 @@ TODO: How to conclude?
   284--289.
 \bibitem{gilbert2007}
   Gilbert, G. (n.d.). Agent-based models.
+
+\bibitem{albert2000}
+Alpert, P., Bone, E. and Holzapfel, C. (2000). Invasiveness, invasibility and the role of environmental stress in the spread of non-native plants. Perspectives in Plant Ecology, Evolution and Systematics, 3(1), pp.52-66.
 
 \end{thebibliography}
 
