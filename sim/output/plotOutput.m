@@ -27,27 +27,40 @@ function plotOutput(prefix,amount)
   hold on
   plot(avgData(index,2), avgData(index,1),'.k')
   hold on
+
+  W = 4; H = 3;
+  set(fig,'PaperUnits','inches')
+  set(fig,'PaperOrientation','portrait');
+  set(fig,'PaperSize',[H,W])
+  set(fig,'PaperPosition',[0,0,W,H])
+
   title(['Plot type: ' prefix ' Amount of runs: ' num2str(amount)])
   xlabel('Solar Luminosity')
   ylabel('Temperature (C)')
   plot(avgData(:,2), avgData(:,5),'r')
   ##plot(defaultAvg(:,2), defaultAvg(:,6),'g')
-  print(fig, strcat(prefix,'-avg.png'),'-dpng','-r72')
+  print(fig, strcat(prefix,'-avg.png'),'-dpng','-r150')
 
   close all
 
   fig = figure('Visible','off')
   hold on
 
+  W = 4; H = 3;
+  set(fig,'PaperUnits','inches')
+  set(fig,'PaperOrientation','portrait');
+  set(fig,'PaperSize',[H,W])
+  set(fig,'PaperPosition',[0,0,W,H])
+
   title(['Plot type: ' prefix ' Amount of runs: ' num2str(amount)])
-  plot(avgData(index,2), avgData(index,11),'r') # iblack
+  plot(avgData(index,2), avgData(index,11),'r','LineWidth',4) # iblack
   #plot(avgData(index,2), avgData(index,10),'dr') # iwhite
-  plot(avgData(index,2), avgData(index,9),'k') # black
-  plot(avgData(index,2), avgData(index,8),'g') # white
-  plot(avgData(index,2), avgData(index,7),'b') # blank
+  plot(avgData(index,2), avgData(index,9),'k','LineWidth',4) # black
+  plot(avgData(index,2), avgData(index,8),'g','LineWidth',4) # white
+  plot(avgData(index,2), avgData(index,7),'b','LineWidth',4) # blank
   xlabel('Solar Luminosity')
   ylabel('Amount of type')
-  print(fig, strcat(prefix,'.png'),'-dpng','-r72')
+  print(fig, strcat(prefix,'.png'),'-dpng','-r150')
 
 
 
