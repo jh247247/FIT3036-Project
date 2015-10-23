@@ -112,7 +112,22 @@ species, Habitate invasibility, Daisyworld
 % Place your abstract within the special {sciabstract} environment.
 
 \begin{sciabstract}
-
+Due to climate change, ecosystems on earth are subject to more stress
+as they attempt to adapt to changing conditions. This increased stress
+can allow an invasive species to take a foothold and potentially cause
+total ecosystem collapse. This is explored in this paper through a
+agent-based implementation of Watson and Lovelock's Daisyworld, with
+the addition of a type of daisy that emulates an invasive species.
+This new type of daisy is identical to the ``black'' variant of the
+original daisyworld, but with a warmer optimal growing
+temperature. Varying this growing temperature shows that there are
+three types of system encountered after the introduction of an
+invasive species, based on the compatibility of the new species to the
+original system. One where the homeostasis is maintained since the new
+species complements the natives, one where the ecosystem breaks
+immediately due to outcompetition and one where the ecosystem only
+breaks down after additional stress is introduced, mirroring
+ecosystems on earth.
 \end{sciabstract}
 
 
@@ -133,8 +148,8 @@ that maintain an environment hospitable to the native species,
 allowing for a stable system in situations where life may not normally
 exist. External pressures such as climate change may cause an
 ecosystem to collapse given there is a large enough change that the
-system cannot react in time\cite{barry2014}. If the change is not
-large enough so that the system can adapt, the additional stress of the
+system cannot react in time\cite{barry2014}. If the change is gradual
+ enough so that the system can adapt, the additional stress of the
 introduction of a non-native species can cause the adaptation to fail
 and the collapse of the ecosystem's homeostasis\cite{rapport1985}.
 
@@ -148,8 +163,8 @@ system can exhibit complex behaviour through their interactions.
 In the original specification of Daisyworld, there are only
 two kinds of daisies, black and white. These two daisies flourish at
 the same temperature, only differing by the amount of incident
-radiation that they absorb. It is this difference in albedo that
-causes either type of daisy to warm or cool it's local environment. As
+radiation that they reflect, or albedo. It is this difference in albedo that
+causes either type of daisy to warm or cool its local environment. As
 the local temperature strays from the optimal growing temperature of the
 daisies, the chance of that daisy dying increases. Hence daisies that
 cause the temperature to deviate from their optimal temperature die more
